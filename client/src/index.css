@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+* {
+  font-family: "Outfit";
+}
+
+.font-playfari {
+  font-family: "Playfair" !important;
+}
+
+@theme {
+  --color-primary: #2563eb;
+  --color-secondary: #fbbf24;
+}
+
+.bg-hero {
+  background-image: linear-gradient(rgb(0 0 6 / 44%), rgba(0, 0, 0, 0.3)),
+    url(/src/assets/heroImage.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
