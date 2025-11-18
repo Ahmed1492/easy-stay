@@ -9,7 +9,7 @@ const Hero = () => {
           The Ultimate Hotel Experience
         </span>
 
-        <h2 className="text-6xl font-bold text-white font-playfari">
+        <h2 className="text-6xl font-bold text-white font-playfair">
           Discover Yours Perfect <br /> Gateway Destination
         </h2>
         <p className="max-w-2xl text-white">

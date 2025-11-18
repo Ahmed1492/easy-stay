@@ -2,7 +2,7 @@ import { assets, cities } from "../assets/assets";
 
 const HotelForm = () => {
   return (
-    <form className="bg-white w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-col md:flex-row max-md:items-start gap-4 max-md:mx-auto">
+    <form className="bg-white w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-col lg:flex-row max-md:items-start gap-4 max-md:mx-auto">
       <div>
         <div className="flex items-center gap-2">
           <img src={assets.calenderIcon} alt="" className="h-4" />
