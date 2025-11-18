@@ -15,7 +15,7 @@ const Home = () => {
     desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
     style: "items-start justify-start text-left",
   };
-
+  // test
   return (
     <div>
       <Hero />
