@@ -2,6 +2,9 @@ import React from "react";
 import Hero from "../components/Hero";
 import FeaturedDestination from "../components/FeaturedDestination";
 import HeaderText from "../components/HeaderText";
+import ExclusiveOffers from "../components/ExclusiveOffers";
+import Testimonials from "../components/Testimonials";
+import NewsLetter from "../components/NewsLetter";
 
 const Home = () => {
   const fetureHeader = {
@@ -15,7 +18,13 @@ const Home = () => {
     desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
     style: "items-start justify-start text-left",
   };
-  // test
+  const testimonials = {
+    title: "What Our Guests Say",
+
+    desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
+    style: "items-center justify-center text-center",
+  };
+
   return (
     <div>
       <Hero />
@@ -30,7 +39,14 @@ const Home = () => {
         description={exclusiveOffers.desc}
         style={exclusiveOffers.style}
       />
-      <br />
+      <ExclusiveOffers />
+      <HeaderText
+        title={testimonials.title}
+        description={testimonials.desc}
+        style={testimonials.style}
+      />
+      <Testimonials />
+      <NewsLetter />
     </div>
   );
 };
