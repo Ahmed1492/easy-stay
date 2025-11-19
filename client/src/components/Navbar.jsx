@@ -67,7 +67,7 @@ const Navbar = () => {
           onClick={() => navigate("/")}
           src={assets.logo}
           alt="logo"
-          className={`w-[165px] h-[35px] object-cover ${
+          className={`w-40 object-cover ${
             isScrolled && "invert opacity-80"
           }`}
         />

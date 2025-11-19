@@ -1,4 +1,4 @@
-import logo from './logo1.png';
+import logo from './logo.svg';
 import searchIcon from './searchIcon.svg';
 import userIcon from './userIcon.svg';
 import calenderIcon from './calenderIcon.svg';
