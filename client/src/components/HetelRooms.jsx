@@ -1,6 +1,7 @@
 import React from "react";
 import HotelRoomCard from "./HotelRoomCard";
 import { roomsDummyData } from "../assets/assets";
+import { Link } from "react-router-dom";
 
 const HetelRooms = () => {
   return (

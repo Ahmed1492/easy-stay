@@ -5,10 +5,11 @@ import {
   hotelDummyData,
   roomsDummyData,
 } from "../assets/assets";
+import { Link } from "react-router-dom";
 
 const HotelRoomCard = ({ room }) => {
   return (
-    <div className="mt-10 flex flex-col sm:flex-row flex-wrap sm:flex-nowrap    justify-center items-center   sm:items-start gap-6 border-b border-gray-300/90 pb-10">
+    <Link to={`/room/${room._id}`} className="mt-10 flex flex-col sm:flex-row flex-wrap sm:flex-nowrap    justify-center items-center   sm:items-start gap-6 border-b border-gray-300/90 pb-10">
       <img
         className=" w-[80vw] sm:w-[50vw] md:w-[40vw]  lg:w-[30vw] xl:w-108 rounded-xl"
         src={room.images[0]}
@@ -25,6 +26,7 @@ const HotelRoomCard = ({ room }) => {
             .fill("")
             .map((item, i) => (
               <img
+                key={i}
                 src={assets.starIconFilled}
                 alt="starIconFilled"
                 className="w-4"
@@ -47,7 +49,10 @@ const HotelRoomCard = ({ room }) => {
         {/*amenities  */}
         <div className="flex flex-wrap items-center  max-w-md  gap-4.5">
           {room.amenities.map((item, index) => (
-            <div className="flex items-center gap-2 text-gray-500 text-sm  bg-slate-100 w-max py-2 px-4 rounded-lg  ">
+            <div
+              key={index}
+              className="flex items-center gap-2 text-gray-500 text-sm  bg-slate-100 w-max py-2 px-4 rounded-lg  "
+            >
               <img className="w-4 " src={facilityIcons[item]} alt="" />
               <p className="font-semibold text-black">{item} </p>
             </div>
@@ -65,7 +70,7 @@ const HotelRoomCard = ({ room }) => {
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
