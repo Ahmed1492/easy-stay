@@ -25,9 +25,9 @@ const Home = () => {
     style: "items-center justify-center text-center",
   };
 
-  return (
-    <div>
+  return (<>
       <Hero />
+    <div className="px-6 md:px-16 lg:px-24  xl:px-32">
       <HeaderText
         title={fetureHeader.title}
         description={fetureHeader.desc}
@@ -48,6 +48,7 @@ const Home = () => {
       <Testimonials />
       <NewsLetter />
     </div>
+  </>
   );
 };
 

@@ -3,7 +3,7 @@ import HotelForm from "./HotelBookingForm";
 
 const Hero = () => {
   return (
-    <div className="bg-hero h-screen px-6 md:px-16 lg:px-24  xl:px-32 ">
+    <div className="bg-hero h-screen px-6 md:px-16 lg:px-24  xl:px-32a ">
       <div className="flex flex-col gap-4 justify-center h-full ">
         <span className="px-4 py-1.5 bg-[#49B9FF]/50 w-max mt-20 text-white rounded-full">
           The Ultimate Hotel Experience

@@ -6,7 +6,7 @@ const FeaturedDestination = () => {
   const navigate = useNavigate();
   return (
     <div className="">
-      <div className="flex items-center flex-wrap  gap-y-7 justify-center  md:justify-between  px-6 md:px-16 lg:px-24  xl:px-32 mt-14">
+      <div className="flex items-center flex-wrap  gap-y-7 justify-center  md:justify-between   mt-14">
         {roomsDummyData.slice(0, 4).map((room, index) => (
           <React.Fragment key={index}>
             <HotelCard room={room} index={index} />

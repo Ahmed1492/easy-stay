@@ -9,7 +9,11 @@ import { Link } from "react-router-dom";
 
 const HotelRoomCard = ({ room }) => {
   return (
-    <Link to={`/room/${room._id}`} className="mt-10 flex flex-col sm:flex-row flex-wrap sm:flex-nowrap    justify-center items-center   sm:items-start gap-6 border-b border-gray-300/90 pb-10">
+    <Link
+      to={`/room/${room._id}`}
+      onClick={() => scrollTo(0, 0)}
+      className="mt-10 flex flex-col sm:flex-row flex-wrap sm:flex-nowrap    justify-center items-center   sm:items-start gap-6 border-b border-gray-300/90 pb-10"
+    >
       <img
         className=" w-[80vw] sm:w-[50vw] md:w-[40vw]  lg:w-[30vw] xl:w-108 rounded-xl"
         src={room.images[0]}

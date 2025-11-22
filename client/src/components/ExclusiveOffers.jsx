@@ -4,7 +4,7 @@ import { exclusiveOffers } from "../assets/assets";
 
 const ExclusiveOffers = () => {
   return (
-    <div className=" px-32 mt-20">
+    <div className="  mt-20">
       <div className="flex items-center flex-wrap gap-y-7 justify-center  sm:justify-between  ">
         {exclusiveOffers.map((offer) => (
           <React.Fragment key={offer._id}>

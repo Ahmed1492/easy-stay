@@ -52,7 +52,7 @@ const Testimonials = () => {
   );
 
   return (
-    <div className="flex flex-col items-center px-6 md:px-16 lg:px-24 pt-20 pb-30">
+    <div className="flex flex-col items-center  pt-20 pb-30">
       <div className="flex flex-wrap w-full items-center justify-center md:justify-between gap-6  mb-10">
         {testimonials.map((testimonial) => (
           <div
