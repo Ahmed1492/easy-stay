@@ -22,16 +22,16 @@ const MyBookingTable = () => {
       "December",
     ];
 
-    const monthName = months[date.getMonth()]; // getMonth() returns 0-11
-    const day = date.getDate(); // day of month
-    const year = date.getFullYear(); // year
+    const monthName = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
 
     return `${monthName} ${day}, ${year}`;
   }
 
   // Example usage
   const formatted = formatDate("2025-04-30T00:00:00.000Z");
-  console.log(formatted); // Output: April 30, 2025
+  console.log(formatted);
 
   return (
     <div className="mt-12">
@@ -45,7 +45,7 @@ const MyBookingTable = () => {
               <th className="w-1/5 text-left border-b-2 py-3 text-gray-700 border-gray-200/80">
                 Date & Timing
               </th>
-              <th className="w-1/5 text-right border-b-2 py-3 text-gray-700 border-gray-200/80">
+              <th className="w-1/5 text-right border-b-2 px-0 lg:px-10 xl:px-20 py-3 text-gray-700 border-gray-200/80">
                 Payment
               </th>
             </tr>
@@ -112,7 +112,7 @@ const MyBookingTable = () => {
                 </td>
 
                 {/* Payment Column */}
-                <td className="border-b-2 border-gray-200/80 text-left py-4">
+                <td className="border-b-2 px-0 lg:px-10 xl:px-20 border-gray-200/80 text-left py-4">
                   <div className={`flex items-center justify-end gap-2.5`}>
                     <div className="flex flex-col gap-2.5 items-center">
                       <div className="flex items-center gap-2.5 px-5">
