@@ -15,7 +15,10 @@ const FeaturedDestination = () => {
       </div>
       <div className="flex items-center justify-center mt-20 ">
         <button
-          onClick={() => navigate("/rooms")}
+          onClick={() => {
+            navigate("/rooms");
+            scroll(0, 0);
+          }}
           className="cursor-pointer border border-gray-200 px-4 py-1.5  rounded-md text-gray-700 font-semibold "
         >
           View All Destinations

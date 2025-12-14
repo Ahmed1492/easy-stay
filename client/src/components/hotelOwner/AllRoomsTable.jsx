@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { roomsDummyData } from "../../assets/assets";
 
 const AllRoomsTable = () => {
   const bookings = [
@@ -33,7 +34,9 @@ const AllRoomsTable = () => {
       action: true,
     },
   ];
-  const [myBooking, setMyBookings] = useState(bookings);
+  console.log(roomsDummyData);
+
+  const [myBooking, setMyBookings] = useState(roomsDummyData);
   return (
     <div className="mt-9 border border-gray-100 rounded-lg w-[58%] max-h-62 overflow-y-scroll">
       <table className="w-full border border-gray-200 text-sm border-collapse">
@@ -48,26 +51,32 @@ const AllRoomsTable = () => {
         <tbody>
           {myBooking.map((item, index) => (
             <tr key={index} className="border-b border-gray-200">
-              <td className="py-4 px-3">{item.user}</td>
-              <td className="px-3 text-left">{item.room}</td>
-              <td className="px-3 text-center">${item.amount}</td>
+              <td className="py-4 px-3">{item.roomType}</td>
+              <td className="px-3 text-left">
+                {item.amenities.map((aminity, index) => (
+                  <span className="me-2" key={index}>
+                    {aminity}
+                  </span>
+                ))}
+              </td>
+              <td className="px-3 text-center">${item.pricePerNight}</td>
               <td className="px-3 text-center duration-500 transition-all">
                 <div
                   onClick={() =>
                     setMyBookings(
                       myBooking.map((b, i) =>
-                        i === index ? { ...b, action: !b.action } : b
+                        i === index ? { ...b, isAvailable: !b.isAvailable } : b
                       )
                     )
                   }
                   className={`w-13 h-7 rounded-full relative cursor-pointer transition-colors duration-500 ${
-                    item.action ? "bg-blue-500" : "bg-gray-400"
+                    item.isAvailable ? "bg-blue-500" : "bg-gray-400"
                   }`}
                 >
                   <span
                     className={`w-5 h-5 absolute top-1 left-1 rounded-full bg-white
       transition-transform duration-500
-      ${item.action ? "translate-x-6" : "translate-x-0"}
+      ${item.isAvailable ? "translate-x-6" : "translate-x-0"}
     `}
                   />
                 </div>

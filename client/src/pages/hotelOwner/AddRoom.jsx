@@ -1,4 +1,5 @@
 import React from "react";
+import AddRoomDetails from "../../components/hotelOwner/AddRoomDetails";
 
 const AddRoom = () => {
   return (
@@ -12,6 +13,7 @@ const AddRoom = () => {
           voluptas?
         </p>
       </div>
+      <AddRoomDetails />
     </div>
   );
 };

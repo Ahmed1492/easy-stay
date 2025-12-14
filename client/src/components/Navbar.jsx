@@ -62,14 +62,16 @@ const Navbar = () => {
       }`}
     >
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-2">
+      <Link
+        onClick={() => scroll(0, 0)}
+        to="/"
+        className="flex items-center gap-2"
+      >
         <img
           onClick={() => navigate("/")}
           src={assets.logo}
           alt="logo"
-          className={`w-40 object-cover ${
-            isScrolled && "invert opacity-80"
-          }`}
+          className={`w-40 object-cover ${isScrolled && "invert opacity-80"}`}
         />
       </Link>
       {/* Desktop Nav */}
@@ -81,6 +83,7 @@ const Navbar = () => {
 
           return (
             <Link
+              onClick={() => scroll(0, 0)}
               key={i}
               to={link.path}
               className={`group flex flex-col gap-0.5 ${textColor}`}
@@ -105,7 +108,10 @@ const Navbar = () => {
         })}
 
         <button
-          onClick={() => navigate("/owner")}
+          onClick={() => {
+            navigate("/owner");
+            scroll(0, 0);
+          }}
           className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${
             isScrolled ? "text-black" : "text-white"
           } transition-all`}
