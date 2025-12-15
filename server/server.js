@@ -24,7 +24,7 @@ app.post('/api/clerk', clerkwebhooks);
 
 // Routes
 app.get('/', (req, res) => {
-  res.send('Hello World! api works');
+  res.send('Hello World! api works 1');
 });
 
 app.listen(port, () => {
