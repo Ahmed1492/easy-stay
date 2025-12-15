@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import "dotenv/config";
 import { connect } from './db/connection.js';
-import { clerkMiddleware } from '@clerk/express';
 import clerkwebhooks from './src/controllers/clerkWebHooks.js';
 
 connect();
@@ -10,23 +9,22 @@ connect();
 const app = express();
 const port = process.env.PORT || 3000;
 
-/* -------------------- CLERK WEBHOOK (RAW BODY) -------------------- */
-app.post(
-  '/api/clerk/webhook',
-  express.raw({ type: 'application/json' }),
-  clerkwebhooks
+// Capture raw body for Clerk webhook verification
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  })
 );
-
-/* -------------------- NORMAL MIDDLEWARES -------------------- */
-app.use(express.json());
 app.use(cors());
 
-/* -------------------- CLERK AUTH (FOR NORMAL ROUTES ONLY) -------------------- */
-app.use(clerkMiddleware());
+// Webhook endpoint (POST)
+app.post('/api/clerk', clerkwebhooks);
 
-/* -------------------- ROUTES -------------------- */
+// Routes
 app.get('/', (req, res) => {
-  res.send('API IS WORKING !');
+  res.send('Hello World! api works');
 });
 
 app.listen(port, () => {
