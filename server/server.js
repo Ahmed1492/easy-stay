@@ -1,38 +1,34 @@
 import express from 'express';
 import cors from 'cors';
 import "dotenv/config";
-import { connect, connectDB } from './db/connection.js';
+import { connect } from './db/connection.js';
 import { clerkMiddleware } from '@clerk/express';
 import clerkwebhooks from './src/controllers/clerkWebHooks.js';
-// connect with DB
+
 connect();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middelwares
+/* -------------------- CLERK WEBHOOK (RAW BODY) -------------------- */
+app.post(
+  '/api/clerk/webhook',
+  express.raw({ type: 'application/json' }),
+  clerkwebhooks
+);
+
+/* -------------------- NORMAL MIDDLEWARES -------------------- */
 app.use(express.json());
 app.use(cors());
 
-// middleware to adds Clerk authentication to app.
+/* -------------------- CLERK AUTH (FOR NORMAL ROUTES ONLY) -------------------- */
 app.use(clerkMiddleware());
 
-
-// API to Listen Clerk Webhook
-app.use('/api/clerk', clerkwebhooks)
-
-
-
-// Routes
-
-
-
-// check connection
+/* -------------------- ROUTES -------------------- */
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('API IS WORKING !');
 });
 
-// check connection
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
