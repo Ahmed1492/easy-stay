@@ -3,6 +3,7 @@ import cors from 'cors';
 import "dotenv/config";
 import { connect } from './db/connection.js';
 import clerkwebhooks from './src/controllers/clerkWebHooks.js';
+import userRouter from './src/routes/user.router.js';
 
 connect();
 
@@ -23,10 +24,12 @@ app.use(cors());
 app.post('/api/clerk', clerkwebhooks);
 
 // Routes
+app.use('/api/user', userRouter);
+
 app.get('/', (req, res) => {
   res.send('Hello World! api works ');
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running on port : http://localhost:${port}/`);
 });

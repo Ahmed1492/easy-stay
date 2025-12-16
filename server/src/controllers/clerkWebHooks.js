@@ -1,12 +1,6 @@
 import User from "../../db/models/user.model.js";
 import { Webhook } from "svix";
 
-// //  Required for Vercel serverless
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
 
 const clerkwebhooks = async (req, res) => {
   try {
