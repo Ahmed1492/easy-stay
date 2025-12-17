@@ -4,6 +4,7 @@ import "dotenv/config";
 import { connect } from './db/connection.js';
 import clerkwebhooks from './src/controllers/clerkWebHooks.js';
 import userRouter from './src/routes/user.router.js';
+import hotelRouter from './src/routes/hotel.router.js';
 
 connect();
 
@@ -25,6 +26,7 @@ app.post('/api/clerk', clerkwebhooks);
 
 // Routes
 app.use('/api/user', userRouter);
+app.use('/api/hotels', hotelRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World! api works ');

@@ -7,7 +7,7 @@ const router = Router();
 router.get('/', isAuth, getUserData);
 
 // store recent searched cities
-router.post('/store-recent-cities', isAuth, storeUserSearchCities);
+router.post('/store-recent-search', isAuth, storeUserSearchCities);
 
 
 
