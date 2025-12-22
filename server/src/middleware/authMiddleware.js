@@ -4,10 +4,10 @@ import User from "../../db/models/user.model.js";
 
 const isAuth = async (req, res, next) => {
   try {
-    const { userId } = req.auth;
 
+    const userId = req.auth?.userId;
+    console.log('userId ', userId);
     if (!userId) {
-
       return res.json({ success: false, message: 'you are not authorized , login First' });
     } else {
       const user = await User.findById(userId);

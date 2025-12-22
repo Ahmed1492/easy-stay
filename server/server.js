@@ -8,7 +8,7 @@ import hotelRouter from './src/routes/hotel.router.js';
 import roomRouter from './src/routes/room.router.js';
 import connectCloudinary from './src/config/cloudinary.js';
 import bookingRouter from './src/routes/booking.router.js';
-
+import { clerkMiddleware } from '@clerk/express';
 connect();
 connectCloudinary();
 const app = express();
@@ -24,8 +24,11 @@ app.use(
 );
 app.use(cors());
 
-// Webhook endpoint (POST)
+// Webhook endpoint (POST) : Webhook route → NO clerkMiddleware
 app.post('/api/clerk', clerkwebhooks);
+
+// All other routes → use clerkMiddleware
+app.use(clerkMiddleware());
 
 // Routes
 app.use('/api/user', userRouter);

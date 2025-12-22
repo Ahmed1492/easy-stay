@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
+import { useAppContext } from "../context/AppContext";
 const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
@@ -9,6 +10,8 @@ const Navbar = () => {
     { name: "Experience", path: "/experience" },
     { name: "About", path: "/about" },
   ];
+  const { showHotelReg, user, navigate, isOwner, setShowHotelReg } =
+    useAppContext();
 
   const BookIcon = () => (
     <svg
@@ -35,8 +38,6 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { openSignIn } = useClerk();
-  const { user } = useUser();
-  const navigate = useNavigate();
   useEffect(() => {
     if (path !== "/") {
       setIsScrolled(true);
@@ -106,18 +107,23 @@ const Navbar = () => {
             </Link>
           );
         })}
-
-        <button
-          onClick={() => {
-            navigate("/owner");
-            scroll(0, 0);
-          }}
-          className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${
-            isScrolled ? "text-black" : "text-white"
-          } transition-all`}
-        >
-          Dashboard
-        </button>
+        {user && (
+          <button
+            onClick={() => {
+              if (isOwner) {
+                navigate("/owner");
+                window.scrollTo(0, 0);
+              } else {
+                setShowHotelReg(true);
+              }
+            }}
+            className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${
+              isScrolled ? "text-black" : "text-white"
+            } transition-all`}
+          >
+            {isOwner ? "Dashboard" : "List Your Hotels"}
+          </button>
+        )}
       </div>
 
       {/* Desktop Right */}
@@ -196,10 +202,17 @@ const Navbar = () => {
 
         {user && (
           <button
-            onClick={() => navigate("/owner")}
+            onClick={() => {
+              if (isOwner) {
+                navigate("/owner");
+                window.scrollTo(0, 0);
+              } else {
+                setShowHotelReg(true);
+              }
+            }}
             className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all"
           >
-            Dashboard
+            {isOwner ? "Dashboard" : "List Your Hotels"}
           </button>
         )}
         {!user && (

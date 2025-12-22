@@ -1,0 +1,62 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser, useAuth } from "@clerk/clerk-react";
+import axios from "axios";
+import toast from "react-hot-toast";
+const AppContext = createContext();
+
+export const AppProvider = ({ children }) => {
+  const currency = import.meta.env.VITE_CURRENCY || "$";
+  const backEndUrl = import.meta.env.VITE_BACKEND_URL;
+  const [isOwner, setIsOwner] = useState(false);
+  const [showHotelReg, setShowHotelReg] = useState(false);
+  const [searchCities, setSearchCities] = useState([]);
+  const navigate = useNavigate();
+  //CLECK
+  const { user } = useUser();
+  const { getToken } = useAuth();
+
+  const fetchUser = async () => {
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const { data } = await axios.get(`${backEndUrl}/api/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        setIsOwner(data?.user?.role === "hotelOwner");
+        setSearchCities(data.recentSearchedCities);
+      } else {
+        // Retry Fetch User Data After 5 Seconds
+        setTimeout(fetchUser, 5000);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+    return () => {};
+  }, [user]);
+  const value = {
+    currency,
+    backEndUrl,
+    navigate,
+    user,
+    getToken,
+    isOwner,
+    setIsOwner,
+    showHotelReg,
+    setShowHotelReg,
+    searchCities,
+    setSearchCities,
+  };
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAppContext = () => useContext(AppContext);
