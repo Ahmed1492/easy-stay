@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { roomsDummyData } from "../../assets/assets";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useAppContext } from "../../context/AppContext";
 
-const AllRoomsTable = () => {
+const AllRoomsTable = ({ myBooking, setMyBookings, fetchHotelRooms }) => {
   const bookings = [
     {
       user: "Great Stock",
@@ -34,11 +37,31 @@ const AllRoomsTable = () => {
       action: true,
     },
   ];
-  console.log(roomsDummyData);
+  // console.log(roomsDummyData);
+  const { navigate, backEndUrl, getToken, user } = useAppContext();
 
-  const [myBooking, setMyBookings] = useState(roomsDummyData);
+  const toggleAvailability = async (id) => {
+    try {
+      const myResponse = await axios.post(
+        `${backEndUrl}/api/rooms/toggle-availability`,
+        { roomId: id },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+      console.log(myResponse.data);
+      if (myResponse.data.success) {
+        toast.success(myResponse.data.message);
+        await fetchHotelRooms();
+      } else {
+        toast.error(myBooking.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   return (
-    <div className="mt-9 border border-gray-100 rounded-lg w-[58%] max-h-62 overflow-y-scroll">
+    <div className="mt-9 border border-gray-100 rounded-lg w-[97%] lg:w-[87%] xl:w-[60%] max-h-62 overflow-y-scroll">
       <table className="w-full border border-gray-200 text-sm border-collapse">
         <thead className="bg-slate-100 text-gray-600 sticky z-50 top-0">
           <tr className="border-b border-gray-200">
@@ -50,25 +73,26 @@ const AllRoomsTable = () => {
         </thead>
         <tbody>
           {myBooking.map((item, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="py-4 px-3">{item.roomType}</td>
-              <td className="px-3 text-left">
+            <tr
+              key={index}
+              className="border-b border-gray-200 text-sm lg:text-base"
+            >
+              <td className="py-4 px-3 text-sm lg:text-base ">
+                {item.roomType}
+              </td>
+              <td className="px-3 text-left text-sm lg:text-base">
                 {item.amenities.map((aminity, index) => (
                   <span className="me-2" key={index}>
                     {aminity}
                   </span>
                 ))}
               </td>
-              <td className="px-3 text-center">${item.pricePerNight}</td>
-              <td className="px-3 text-center duration-500 transition-all">
+              <td className="px-3 text-center text-sm lg:text-base">
+                ${item.pricePerNight}
+              </td>
+              <td className="px-3 text-center duration-500 transition-all text-sm lg:text-base">
                 <div
-                  onClick={() =>
-                    setMyBookings(
-                      myBooking.map((b, i) =>
-                        i === index ? { ...b, isAvailable: !b.isAvailable } : b
-                      )
-                    )
-                  }
+                  onClick={() => toggleAvailability(item._id)}
                   className={`w-13 h-7 rounded-full relative cursor-pointer transition-colors duration-500 ${
                     item.isAvailable ? "bg-blue-500" : "bg-gray-400"
                   }`}
