@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import HotelCard from "./HotelCard";
 import { roomsDummyData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import axios from "axios";
 const FeaturedDestination = () => {
-  const navigate = useNavigate();
+  const { navigate, backEndUrl } = useAppContext();
+  const FetchFeaturedData = async () => {
+    try {
+      const myResponse = await axios.get(`${backEndUrl}/api/rooms`);
+      console.log(myResponse.data);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  useEffect(() => {
+    FetchFeaturedData();
+  }, []);
   return (
     <div className="">
       <div className="flex items-center flex-wrap  gap-y-7 justify-center  md:justify-between   mt-14">
