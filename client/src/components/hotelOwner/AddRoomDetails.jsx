@@ -13,6 +13,13 @@ const AddRoomDetails = () => {
     "Pool Access",
   ];
 
+  const roomTypes = [
+    { id: "single-bed", label: "Single Bed" },
+    { id: "double-bed", label: "Double Bed" },
+    { id: "luxury-room", label: "Luxury Room" },
+    { id: "family-suite", label: "Family Suite" },
+  ];
+
   const [images, setImages] = useState({
     1: null,
     2: null,
@@ -164,8 +171,11 @@ const AddRoomDetails = () => {
             value={inputs.roomType}
           >
             <option value="">Select Room Type</option>
-            <option value="option 1">option 1</option>
-            <option value="option 2">option 2</option>
+            {roomTypes.map((type) => (
+              <option key={type.id} value={type.label}>
+                {type.label}
+              </option>
+            ))}
           </select>
         </div>
         {/* PRICE/NIGHT */}

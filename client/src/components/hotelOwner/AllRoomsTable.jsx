@@ -41,25 +41,39 @@ const AllRoomsTable = ({ myBooking, setMyBookings, fetchHotelRooms }) => {
   const { navigate, backEndUrl, getToken, user } = useAppContext();
 
   const toggleAvailability = async (id) => {
+    //  Update UI immediately
+    setMyBookings((prev) =>
+      prev.map((room) =>
+        room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
+      )
+    );
+
     try {
-      const myResponse = await axios.post(
+      const { data } = await axios.post(
         `${backEndUrl}/api/rooms/toggle-availability`,
         { roomId: id },
         {
           headers: { Authorization: `Bearer ${await getToken()}` },
         }
       );
-      console.log(myResponse.data);
-      if (myResponse.data.success) {
-        toast.success(myResponse.data.message);
-        await fetchHotelRooms();
-      } else {
-        toast.error(myBooking.data.message);
+
+      if (!data.success) {
+        throw new Error(data.message);
       }
+
+      toast.success(data.message);
     } catch (error) {
+      //  Rollback if API fails
+      setMyBookings((prev) =>
+        prev.map((room) =>
+          room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
+        )
+      );
+
       toast.error(error.message);
     }
   };
+
   return (
     <div className="mt-9 border border-gray-100 rounded-lg w-[97%] lg:w-[87%] xl:w-[60%] max-h-62 overflow-y-scroll">
       <table className="w-full border border-gray-200 text-sm border-collapse">

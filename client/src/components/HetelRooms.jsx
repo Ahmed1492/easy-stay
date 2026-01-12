@@ -2,21 +2,27 @@ import React from "react";
 import HotelRoomCard from "./HotelRoomCard";
 import { roomsDummyData } from "../assets/assets";
 import { Link } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
-const HetelRooms = () => {
+const HetelRooms = ({ matchesRoomType, matchesPriceRnage }) => {
+  const { navigate, backEndUrl, rooms, fetchRooms } = useAppContext();
+
   return (
-    <div>
+    <div className="">
       <h2 className="font-playfair font-medium text-4xl mt-20">Hotel Rooms </h2>
       <p className="max-w-2xl mt-4 text-gray-500">
         Lorem ipsum dolor, sit amet consectetur adipisicing elit. Beatae,
         laborum cupiditate! Iure dolorem, natus laudantium ipsa debitis quis.
       </p>
       <div className="flex flex-col">
-        {roomsDummyData.map((room, index) => (
-          <React.Fragment key={index}>
-            <HotelRoomCard room={room} />
-          </React.Fragment>
-        ))}
+        {rooms.map((room, index) => {
+          if (matchesRoomType(room) && matchesPriceRnage(room))
+            return (
+              <React.Fragment key={index}>
+                <HotelRoomCard room={room} />
+              </React.Fragment>
+            );
+        })}
       </div>
     </div>
   );

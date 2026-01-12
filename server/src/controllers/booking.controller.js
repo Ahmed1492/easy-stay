@@ -87,30 +87,38 @@ export const userBookings = async (req, res) => {
 
 export const getHotelBookins = async (req, res) => {
   try {
-
-    const userId = req.user._id;
-    const { hotel } = await Hotel.findOne({ owner: req.auth.userId });
+    const hotel = await Hotel.findOne({ owner: req.auth.userId });
 
     if (!hotel) {
-
-      return res.json({ success: false, message: 'No Hotel Found' });
+      return res.json({ success: false, message: "No Hotel Found" });
     }
-    const bookings = await Booking.findOne({ hotel: hotel._id }).populate("room hotel user").sort({
-      createdAt: -1
-    });
 
-    // total bookings
+    const bookings = await Booking.find({ hotel: hotel._id })
+      .populate("room hotel user")
+      .sort({ createdAt: -1 });
+
     const totalBookings = bookings.length;
-    const totalRevenue = bookings.reduce((acc, booking) => acc + booking.totalPrice, 0);
+    const totalRevenue = bookings.reduce(
+      (acc, booking) => acc + booking.totalPrice,
+      0
+    );
 
-    const dashboardData = {
-      bookings, totalBookings, totalRevenue
-    };
-    return res.json({ success: true, dashboardData });
+    return res.json({
+      success: true,
+      dashboardData: {
+        bookings,
+        totalBookings,
+        totalRevenue,
+      },
+    });
 
   } catch (error) {
     console.log(error);
-    return res.json({ success: false, err: error.message, stack: error.stack });
+    return res.json({
+      success: false,
+      message: error.message,
+    });
   }
-}
+};
+
 

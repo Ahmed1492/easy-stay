@@ -1,7 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assets.js";
 import RecentBookingTable from "../../components/hotelOwner/RecentBookingTable.jsx";
+import axios from "axios";
+import { useAppContext } from "../../context/AppContext.jsx";
+import toast from "react-hot-toast";
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState({});
+  const { backEndUrl, getToken, user } = useAppContext();
+
+  const getDashboardData = async () => {
+    try {
+      const myResponse = await axios.get(
+        `${backEndUrl}/api/booking/hotel-bookings`,
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+      console.log(myResponse.data);
+      if (myResponse.data.success) {
+        setDashboardData(myResponse.data.dashboardData);
+      } else {
+        toast.error(myResponse.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      getDashboardData();
+    }
+  }, [user]);
   return (
     <div className="py-4 px-7 mt-20 w-full">
       <div className="mt-9">
@@ -25,7 +55,7 @@ const Dashboard = () => {
             />
             <div>
               <h3 className="text-blue-400">Total Bookings</h3>
-              <p className="text-gray-500/80">4</p>
+              <p className="text-gray-500/80">{dashboardData?.totalBookings}</p>
             </div>
           </div>
         </div>
@@ -40,7 +70,7 @@ const Dashboard = () => {
             />
             <div>
               <h3 className="text-blue-400">Total Revenue</h3>
-              <p className="text-gray-500/80">$897</p>
+              <p className="text-gray-500/80">${dashboardData?.totalRevenue}</p>
             </div>
           </div>
         </div>
@@ -48,7 +78,7 @@ const Dashboard = () => {
 
       <h3 className="text-2xl mt-9 text-gray-700">Recent Bookings</h3>
       <div className="w-full">
-        <RecentBookingTable />
+        <RecentBookingTable dashboardData ={dashboardData} />
       </div>
     </div>
   );

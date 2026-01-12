@@ -12,7 +12,6 @@ const ListRoom = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchHotelRooms = async () => {
-    setLoading(true);
     try {
       const myResponse = await axios.get(
         `${backEndUrl}/api/rooms/owner-rooms`,
