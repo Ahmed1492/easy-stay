@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import HetelRooms from "../components/HetelRooms";
 import FiltersHotelRooms from "../components/FiltersHotelRooms";
+import { useSearchParams } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 const AllRooms = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { navigate, backEndUrl, fetchRooms, rooms } = useAppContext();
+
   const [selectedFilters, setSelectedFilters] = useState({
     roomType: [],
     priceRange: [],
@@ -52,12 +57,58 @@ const AllRooms = () => {
     );
   };
 
+  // sortRooms is passed to .sort() to order the filtered rooms array
+  // It decides which room comes first based on selectedSort (price or newest)
+  const sortRooms = (a, b) => {
+    if (selectedSort === "Price Low to High") {
+      return a.pricePerNight - b.pricePerNight;
+    }
+    if (selectedSort === "Price High to Low") {
+      return b.pricePerNight - a.pricePerNight;
+    }
+    if (selectedSort === "Newest First") {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    }
+    return 0;
+  };
+
+  // filter Destionation
+  const filterDestination = (room) => {
+    const destination = searchParams.get("destination");
+    if (!destination) return true;
+    return room.hotel.city.toLowerCase().includes(destination.toLowerCase());
+  };
+
+  // filter rooms based on selected option (room type , price range , sort by)
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  const filteredRooms = useMemo(() => {
+    return rooms
+      .filter(
+        (room) =>
+          matchesRoomType(room) &&
+          matchesPriceRnage(room) &&
+          filterDestination(room)
+      )
+      .sort(sortRooms);
+  }, [rooms, selectedFilters, searchParams, selectedSort]);
+
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      roomType: [],
+      priceRange: [],
+    });
+
+    setSelectedSort("");
+    setSearchParams({});
+  };
+
   return (
     <div className="mt-20 px-4 md:px-16 lg:px-24 xl:px-32 min-h-[90vh]">
       <div className="flex  flex-wrap-reverse lg:flex-wrap-reverse xl:flex-nowrap gap-6 justify-between">
         <HetelRooms
           matchesRoomType={matchesRoomType}
           matchesPriceRnage={matchesPriceRnage}
+          rooms={filteredRooms}
         />
 
         <FiltersHotelRooms
@@ -67,6 +118,7 @@ const AllRooms = () => {
           setSelectedSort={setSelectedSort}
           handleFilterChange={handleFilterChange}
           handleSelectedSort={handleSelectedSort}
+          clearAllFilters={clearAllFilters}
         />
       </div>
     </div>

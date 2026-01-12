@@ -10,8 +10,8 @@ const FiltersHotelRooms = ({
   setSelectedSort,
   handleFilterChange,
   handleSelectedSort,
+  clearAllFilters,
 }) => {
-  const [searchParams, setSearchParams] = useState();
   const { navigate, backEndUrl, rooms, fetchRooms } = useAppContext();
 
   const roomTypes = [
@@ -40,7 +40,12 @@ const FiltersHotelRooms = ({
         {/* Header */}
         <div className="border-b border-gray-300/90 p-4 flex items-center justify-between">
           <h3 className="text-lg font-medium">FILTERS</h3>
-          <span className="text-gray-600/90 text-sm cursor-pointer">CLEAR</span>
+          <span
+            onClick={clearAllFilters}
+            className="text-gray-600/90 text-sm cursor-pointer border-b-2 border-transparent hover:border-gray-600/90 transition-colors duration-500 hover:font-semibold"
+          >
+            CLEAR
+          </span>
         </div>
 
         <div className="flex justify-between xl:block">

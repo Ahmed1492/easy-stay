@@ -4,8 +4,8 @@ import { roomsDummyData } from "../assets/assets";
 import { Link } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 
-const HetelRooms = ({ matchesRoomType, matchesPriceRnage }) => {
-  const { navigate, backEndUrl, rooms, fetchRooms } = useAppContext();
+const HetelRooms = ({ matchesRoomType, matchesPriceRnage  , rooms}) => {
+  const { navigate, backEndUrl,  fetchRooms } = useAppContext();
 
   return (
     <div className="">
@@ -16,7 +16,6 @@ const HetelRooms = ({ matchesRoomType, matchesPriceRnage }) => {
       </p>
       <div className="flex flex-col">
         {rooms.map((room, index) => {
-          if (matchesRoomType(room) && matchesPriceRnage(room))
             return (
               <React.Fragment key={index}>
                 <HotelRoomCard room={room} />
