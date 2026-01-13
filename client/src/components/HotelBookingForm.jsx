@@ -1,8 +1,41 @@
+import { useEffect, useState } from "react";
 import { assets, cities } from "../assets/assets";
+import { useAppContext } from "../context/AppContext";
+import axios from "axios";
 
 const HotelForm = () => {
+  const { navigate, getToken, setSearchCities, backEndUrl, searchCities } =
+    useAppContext();
+  const [destination, setDestination] = useState("");
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    navigate(`/rooms?destination=${destination}`);
+
+    // add new search cities for specific user to database
+    const myResponse = await axios.post(
+      `${backEndUrl}/api/user/store-recent-search`,
+      {
+        recentSearchedCity: destination,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      }
+    );
+    console.log(myResponse.data);
+    setSearchCities((prev) => {
+      const safePrev = Array.isArray(prev) ? prev : [];
+      return [...safePrev, destination].slice(-3);
+    });
+  };
+
   return (
-    <form className="bg-white w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-col lg:flex-row max-md:items-start gap-4 max-md:mx-auto">
+    <form
+      onSubmit={handleSearch}
+      className="bg-white w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-col lg:flex-row max-md:items-start gap-4 max-md:mx-auto"
+    >
       <div>
         <div className="flex items-center gap-2">
           <img src={assets.calenderIcon} alt="" className="h-4" />
@@ -15,6 +48,8 @@ const HotelForm = () => {
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
           placeholder="Type here"
           required
+          onChange={(e) => setDestination(e.target.value)}
+          value={destination}
         />
         <datalist id="destinations">
           {cities.map((city, index) => (

@@ -22,12 +22,13 @@ const FeaturedDestination = () => {
     }
   };
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     FetchFeaturedData();
   }, []);
   return (
     rooms.length > 0 && (
       <div className="">
-        <div className="flex items-center flex-wrap  gap-y-7 justify-center  md:justify-between   mt-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-7 mt-14">
           {rooms.slice(0, 4).map((room, index) => (
             <React.Fragment key={index}>
               <HotelCard room={room} index={index} />

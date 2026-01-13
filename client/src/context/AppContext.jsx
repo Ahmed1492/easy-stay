@@ -55,6 +55,7 @@ export const AppProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRooms();
   }, [user]);
 

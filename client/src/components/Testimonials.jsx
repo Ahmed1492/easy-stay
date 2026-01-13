@@ -52,12 +52,12 @@ const Testimonials = () => {
   );
 
   return (
-    <div className="flex flex-col items-center  pt-20 pb-30">
-      <div className="flex flex-wrap w-full items-center justify-center md:justify-between gap-6  mb-10">
+    <div className=" pt-20 pb-30">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7  mb-10">
         {testimonials.map((testimonial) => (
           <div
             key={testimonial.id}
-            className="bg-white p-6 px-3 rounded-xl shadow w-[80%] sm:w-[60%]  md:w-[50%] lg:w-[30%]"
+            className="bg-white p-6 px-3 rounded-xl shadow w-full"
           >
             <div className="flex items-center gap-3">
               <img

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { assets } from "../assets/assets";
+import { assets, cities } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -128,9 +128,11 @@ const HotelReg = () => {
             className="border-gray-100 border rounded-lg px-2 py-2 w-[64%]"
           >
             <option value="">Select City</option>
-            <option value="option 2">option 2</option>
-            <option value="option 3">option 3</option>
-            <option value="option 4">option 4</option>
+            {cities.map((city, index) => (
+              <option key={index} value={city}>
+                {city}
+              </option>
+            ))}
           </select>
 
           <button

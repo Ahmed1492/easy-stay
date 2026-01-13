@@ -21,7 +21,7 @@ const HotelRoomCard = ({ room }) => {
       />
       <div className="flex flex-col justify-center   sm:justify-between gap-2">
         {/* Title */}
-        <span className="text-gray-600/80">New York</span>
+        <span className="text-gray-600/80">{room?.hotel?.city}</span>
         <h3 className="text-xl lg:text-3xl font-playfair">
           {hotelDummyData.name}
         </h3>

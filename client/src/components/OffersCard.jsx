@@ -3,7 +3,7 @@ import { assets, exclusiveOffers } from "../assets/assets";
 
 const OffersCard = ({ offer }) => {
   return (
-    <div className="    shrink-0 w-[85vw] sm:w-[49vw] lg:w-[24rem] xl:w-[28rem] relative">
+    <div className="    relative">
       <img className="w-full rounded-md" src={offer.image} alt="" />
       <div className="flex flex-col justify-around absolute top-0 bottom-0 text-white px-4 py-2">
         <span className="text-gray-800 bg-white px-4 font-medium py-1.5 rounded-full text-sm w-max">

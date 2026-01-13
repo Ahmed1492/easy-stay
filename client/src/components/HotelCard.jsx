@@ -3,10 +3,9 @@ import { Link } from "react-router-dom";
 const HotelCard = ({ room, index }) => {
   return (
     <Link
-
       onClick={() => scrollTo(0, 0)}
       to={`/room/${room._id}`}
-      className="flex flex-col w-[18rem] me-20 sm:me-0  sm:w-[19rem]  xl:w-[20rem]  shrink-0 ms-20 sm:ms-0 rounded-md gap-2 shadow pb-5 relative "
+      className="flex flex-col rounded-md gap-2 shadow pb-5 relative w-full"
     >
       {index % 2 == 0 && (
         <span className="absolute bg-white px-4 py-1.5 rounded-full text-gray-900 top-4 left-4 text-sm font-medium">

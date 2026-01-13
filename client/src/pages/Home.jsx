@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Hero from "../components/Hero";
 import FeaturedDestination from "../components/FeaturedDestination";
 import HeaderText from "../components/HeaderText";
 import ExclusiveOffers from "../components/ExclusiveOffers";
 import Testimonials from "../components/Testimonials";
 import NewsLetter from "../components/NewsLetter";
+import RecommendedHotels from "../components/RecommendedHotels";
+import { useAppContext } from "../context/AppContext";
 
 const Home = () => {
+  const { searchCities } = useAppContext();
   const fetureHeader = {
     title: "Feaured Destination",
     desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
@@ -25,30 +28,32 @@ const Home = () => {
     style: "items-center justify-center text-center",
   };
 
-  return (<>
+  return (
+    <>
       <Hero />
-    <div className="px-6 md:px-16 lg:px-24  xl:px-32">
-      <HeaderText
-        title={fetureHeader.title}
-        description={fetureHeader.desc}
-        style={fetureHeader.style}
-      />
-      <FeaturedDestination />
-      <HeaderText
-        title={exclusiveOffers.title}
-        description={exclusiveOffers.desc}
-        style={exclusiveOffers.style}
-      />
-      <ExclusiveOffers />
-      <HeaderText
-        title={testimonials.title}
-        description={testimonials.desc}
-        style={testimonials.style}
-      />
-      <Testimonials />
-      <NewsLetter />
-    </div>
-  </>
+      <div className="px-6 md:px-16 lg:px-24  xl:px-32">
+        {searchCities?.length > 0 && <RecommendedHotels />}
+        <HeaderText
+          title={fetureHeader.title}
+          description={fetureHeader.desc}
+          style={fetureHeader.style}
+        />
+        <FeaturedDestination />
+        <HeaderText
+          title={exclusiveOffers.title}
+          description={exclusiveOffers.desc}
+          style={exclusiveOffers.style}
+        />
+        <ExclusiveOffers />
+        <HeaderText
+          title={testimonials.title}
+          description={testimonials.desc}
+          style={testimonials.style}
+        />
+        <Testimonials />
+        <NewsLetter />
+      </div>
+    </>
   );
 };
 
