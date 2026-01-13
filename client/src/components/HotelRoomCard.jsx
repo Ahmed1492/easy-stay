@@ -12,13 +12,9 @@ const HotelRoomCard = ({ room }) => {
     <Link
       to={`/room/${room._id}`}
       onClick={() => scrollTo(0, 0)}
-      className="mt-10 flex flex-col sm:flex-row flex-wrap sm:flex-nowrap    justify-center items-center   sm:items-start gap-6 border-b border-gray-300/90 pb-10"
+      className="mt-10 grid grid-cols-1  xl:grid-cols-2 gap-6 border-b border-gray-300/90 pb-10"
     >
-      <img
-        className=" w-[80vw] sm:w-[50vw] md:w-[40vw]  lg:w-[40vw] xl:min-w-[20vw] xl:max-w-[29vw] rounded-xl"
-        src={room.images[0]}
-        alt=""
-      />
+      <img className="w-full rounded-xl" src={room.images[0]} alt="" />
       <div className="flex flex-col justify-center   sm:justify-between gap-2">
         {/* Title */}
         <span className="text-gray-600/80">{room?.hotel?.city}</span>

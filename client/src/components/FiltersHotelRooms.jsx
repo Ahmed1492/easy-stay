@@ -35,8 +35,8 @@ const FiltersHotelRooms = ({
   ];
 
   return (
-    <div>
-      <form className="pb-5 w-[81vw] sm:w-[80vw] lg:w-[50vw] xl:w-[33vh] border border-gray-300/90 rounded-md mt-17">
+    <div className="flex  justify-end  w-full  mb-10 lg:mb-0 order-a ">
+      <form className="pb-5h-max border w-full lg:w-[70%]  xl:w-[50%] h-max border-gray-300/90 rounded-md mt-17">
         {/* Header */}
         <div className="border-b border-gray-300/90 p-4 flex items-center justify-between">
           <h3 className="text-lg font-medium">FILTERS</h3>
@@ -48,7 +48,7 @@ const FiltersHotelRooms = ({
           </span>
         </div>
 
-        <div className="flex justify-between xl:block">
+        <div className="flex justify-between lg:block">
           {/* Room Types */}
           <div className="p-4">
             <h3 className="font-semibold mb-4">Popular Filters</h3>

@@ -103,13 +103,15 @@ const AllRooms = () => {
   };
 
   return (
-    <div className="mt-20 px-4 md:px-16 lg:px-24 xl:px-32 min-h-[90vh]">
-      <div className="flex  flex-wrap-reverse lg:flex-wrap-reverse xl:flex-nowrap gap-6 justify-between">
-        <HetelRooms
-          matchesRoomType={matchesRoomType}
-          matchesPriceRnage={matchesPriceRnage}
-          rooms={filteredRooms}
-        />
+    <div className="mt-20 px-4 md:px-16 lg:px-24 xl:px-32 min-h-[90vh] w-full">
+      <div className="grid grid-1 lg:grid-cols-2   gap-7 w-full">
+       
+          <HetelRooms
+            matchesRoomType={matchesRoomType}
+            matchesPriceRnage={matchesPriceRnage}
+            rooms={filteredRooms}
+          />
+        
 
         <FiltersHotelRooms
           selectedFilters={selectedFilters}
@@ -119,6 +121,7 @@ const AllRooms = () => {
           handleFilterChange={handleFilterChange}
           handleSelectedSort={handleSelectedSort}
           clearAllFilters={clearAllFilters}
+          className="order-1 lg:order-1"
         />
       </div>
     </div>
