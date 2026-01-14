@@ -34,7 +34,7 @@ const HotelForm = () => {
   return (
     <form
       onSubmit={handleSearch}
-      className="bg-white w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-col lg:flex-row max-md:items-start gap-4 max-md:mx-auto"
+      className="bg-white w-full lg:w-max mt-5 text-gray-500 rounded-lg px-6 py-4  flex flex-wrap  gap-4 max-md:mx-auto"
     >
       <div>
         <div className="flex items-center gap-2">

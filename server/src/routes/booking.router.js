@@ -5,7 +5,7 @@ import { checkAvailabilityApi, createBooking, getHotelBookins, userBookings } fr
 const router = Router();
 
 // check booking availability
-router.post('/check-availability', checkAvailabilityApi);
+router.post('/check-availability', isAuth, checkAvailabilityApi);
 
 // create new booking
 router.post('/create', isAuth, createBooking);

@@ -3,17 +3,23 @@ import { assets, facilityIcons, roomCommonData } from "../assets/assets";
 import RoomCheckAvailabiltiy from "./RoomCheckAvailabiltiy";
 import StarRating from "./StarRating";
 
-const RoomDescription = ({ room }) => {
+const RoomDescription = ({
+  room,
+  isAvailable,
+  setIsAvailabe,
+  bookingData,
+  setBookingData,
+  id,
+}) => {
   return (
     <div>
-      {/*  */}
-      <div className="flex items-center justify-between mt-10">
+      <div className="flex flex-wrap items-center justify-between mt-10">
         <h3 className="text-4xl   font-playfair">
           Experience Luxury Like Never Before
         </h3>
 
         <p className="text-black font-bold">
-          <span className="text-xl  ">${room.pricePerNight}</span>
+          <span className="text-xl  ">${room?.pricePerNight}</span>
           /night
         </p>
       </div>
@@ -32,7 +38,13 @@ const RoomDescription = ({ room }) => {
 
       {/* Room Check Availabiltiy */}
       <div className="flex justify-center my-20">
-        <RoomCheckAvailabiltiy />
+        <RoomCheckAvailabiltiy
+          isAvailable={isAvailable}
+          bookingData={bookingData}
+          setBookingData={setBookingData}
+          setIsAvailabe={setIsAvailabe}
+          id={id}
+        />
       </div>
 
       {/* roomCommonData */}

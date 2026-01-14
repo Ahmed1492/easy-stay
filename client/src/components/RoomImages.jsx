@@ -21,20 +21,20 @@ const RoomImages = ({ room }) => {
         <img className="w-4" src={assets.locationIcon} alt="" />
         <p>{hotelDummyData?.address}</p>
       </div>
-      <div className=" flex flex-col lg:flex-row lg:items-start gap-5 items-center justify-center lg:justify-between ">
-        <div className=" w-full lg:w-[50%] xl:w-[50%]">
+      <div className=" grid grid-cols-1 lg:grid-cols-2 gap-7 ">
+        <div className=" w-full ">
           <img
-            className=" md:w-[99%] lg:w-[94%]  rounded-lg"
+            className=" w-full  rounded-lg"
             src={room?.images?.[mainImageIndex]}
             alt=""
           />
         </div>
-        <div className="w-full lg:w-[50%] xl:w-[50%] flex flex-wrap items-center justify-between gap-5">
+        <div className="w-full  grid grid-cols-2 md:grid-cols-2 gap-3 ">
           {room?.images?.map((img, index) => (
             <img
               onClick={() => setMainImageIndex(index)}
               key={index}
-              className={`w-[44%] cursor-pointer ${
+              className={`w-full cursor-pointer ${
                 index === mainImageIndex ? "border-3  border-amber-700" : ""
               } rounded-lg`}
               src={img}

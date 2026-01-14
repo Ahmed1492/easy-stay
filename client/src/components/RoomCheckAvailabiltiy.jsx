@@ -1,6 +1,92 @@
-const RoomCheckAvailabiltiy = () => {
+import axios from "axios";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { useAppContext } from "../context/AppContext";
+
+const RoomCheckAvailabiltiy = ({
+  bookingData,
+  setBookingData,
+  isAvailable,
+  setIsAvailabe,
+  id,
+}) => {
+  const { backEndUrl, getToken, navigate } = useAppContext();
+
+  const handleCheckAvailability = async () => {
+    try {
+      let myResponse = await axios.post(
+        `${backEndUrl}/api/booking/check-availability`,
+        {
+          checkInDate: new Date(bookingData.checkInDate),
+          checkOutDate: new Date(bookingData.checkOutDate),
+          room: id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
+      console.log(myResponse.data);
+
+      if (myResponse.data.success) {
+        if (myResponse.data.isAvailable) {
+          toast.success("Room Is Availabe");
+          setIsAvailabe(true);
+          return;
+        } else {
+          toast.error("Room Is  Already Booked ");
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleBooking = async () => {
+    try {
+      let myResponse = await axios.post(
+        `${backEndUrl}/api/booking/create`,
+        {
+          checkInDate: new Date(bookingData.checkInDate),
+          checkOutDate: new Date(bookingData.checkOutDate),
+          room: id,
+          guests: bookingData.guests,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
+      console.log(myResponse.data);
+      if (myResponse.data.success) {
+        toast.success(myResponse.data.message || "Room Booked Successfulye");
+        navigate("/my-bookings");
+        setIsAvailabe(false);
+      } else {
+        return toast.error(myResponse.data.message || "Room Not Availbale");
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (!isAvailable) return await handleCheckAvailability();
+
+      return await handleBooking();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   return (
-    <form className="bg-white cutom-shadow w-max justify-between  gap-30 text-gray-500 rounded-lg px-6 py-4  flex flex-col md:flex-row max-md:items-start  max-md:mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white cutom-shadow  justify-between  gap-9 text-gray-500 rounded-lg px-6 py-4  flex  w-full xl:w-[80%] flex-wrap max-md:items-start  max-md:mx-auto"
+    >
       <div>
         <div className="flex items-center gap-2">
           <svg
@@ -25,7 +111,15 @@ const RoomCheckAvailabiltiy = () => {
         <input
           id="checkIn"
           type="date"
-          className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
+          value={bookingData.checkInDate}
+          min={new Date().toISOString().split("T")[0]}
+          onChange={(e) =>
+            setBookingData((prev) => ({
+              ...prev,
+              checkInDate: e.target.value,
+            }))
+          }
+          className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
         />
       </div>
 
@@ -54,6 +148,15 @@ const RoomCheckAvailabiltiy = () => {
           id="checkOut"
           type="date"
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
+          value={bookingData.checkOutDate}
+          min={bookingData.checkInDate}
+          disabled={!bookingData.checkInDate}
+          onChange={(e) =>
+            setBookingData((prev) => ({
+              ...prev,
+              checkOutDate: e.target.value,
+            }))
+          }
         />
       </div>
 
@@ -66,11 +169,18 @@ const RoomCheckAvailabiltiy = () => {
           type="number"
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none  max-w-16"
           placeholder="0"
+          value={bookingData.guests}
+          onChange={(e) =>
+            setBookingData((prev) => ({
+              ...prev,
+              guests: e.target.value,
+            }))
+          }
         />
       </div>
 
       <button className="flex items-center justify-center gap-1 rounded-md bg-blue-600 py-3 px-20 text-white my-auto  max-md:w-full max-md:py-1 cursor-pointer">
-        <span>Check Availabiltiy</span>
+        <span>{isAvailable ? "Book Now" : "Check Availabiltiy"}</span>
       </button>
     </form>
   );

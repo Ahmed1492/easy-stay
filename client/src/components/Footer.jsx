@@ -3,18 +3,18 @@ import { assets } from "../assets/assets";
 const Footer = () => {
   return (
     <div className="text-gray-500/80 pt-8 px-6 md:px-16 lg:px-24 xl:px-32 bg-slate-500/9">
-      <div className="flex flex-wrap justify-between gap-12 md:gap-6 mt-20">
-        <div className="max-w-80">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7 mt-20 w-full ">
+        <div className="text-center  md:text-left">
           <img
             src={assets.logo}
             alt="logo"
-            className="mb-4 w-[165px] h-[35px] object-cover invert"
+            className="mb-4 w-[165px] h-[35px] object-cover invert m-auto md:m-0"
           />
           <p className="text-sm">
             Discover the world's most extraordinary places to stay, from
             boutique hotels to luxury villas and private islands.
           </p>
-          <div className="flex items-center gap-3 mt-4">
+          <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
             {/* Instagram */}
             <img
               src={assets.instagramIcon}
@@ -36,7 +36,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div>
+        <div  className="text-center md:text-left">
           <p className="text-xl font-bold text-gray-800 font-playfair ">
             COMPANY
           </p>
@@ -59,7 +59,7 @@ const Footer = () => {
           </ul>
         </div>
 
-        <div>
+        <div  className="text-center md:text-left">
           <p className="text-xl font-bold text-gray-800 font-playfair ">
             SUPPORT
           </p>
@@ -82,14 +82,14 @@ const Footer = () => {
           </ul>
         </div>
 
-        <div className="max-w-80">
+        <div className="text-center md:text-left">
           <p className="text-xl font-bold text-gray-800 font-playfair ">
             STAY UPDATED
           </p>
           <p className="mt-3 text-sm">
             Subscribe to our newsletter for inspiration and special offers.
           </p>
-          <div className="flex items-center mt-4">
+          <div className="flex items-center mt-4 justify-center md:justify-start">
             <input
               type="text"
               className="bg-white rounded-l border border-gray-300 h-9 px-3 outline-none"
@@ -106,8 +106,9 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <hr className="border-gray-300 mt-8" />
-      <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-5">
+
+      <hr className="border-gray-300   mt-8" />
+      <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-5 ">
         <p>
           © {new Date().getFullYear()}{" "}
           <a href="https://prebuiltui.com"> By Ahmed Mohamed</a>. All rights

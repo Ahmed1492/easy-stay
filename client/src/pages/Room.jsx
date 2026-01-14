@@ -9,26 +9,43 @@ import {
 import RoomImages from "../components/RoomImages";
 import StarRating from "../components/StarRating";
 import RoomDescription from "../components/RoomDescription";
+import { useAppContext } from "../context/AppContext";
 
 const Room = () => {
   const { id } = useParams();
   const [room, setRoom] = useState({});
-
+  const { rooms, getToken, navigate } = useAppContext();
   const getRoom = async () => {
-    let searchedRoom = await roomsDummyData.find((room) => room._id === id);
-    console.log("seaerched room ", searchedRoom);
+    let searchedRoom = await rooms.find((room) => room._id === id);
+    // console.log("seaerched room ", searchedRoom);
 
-    setRoom(searchedRoom);
+    searchedRoom && setRoom(searchedRoom);
   };
+
+  const [isAvailable, setIsAvailabe] = useState(false);
+
+  const [bookingData, setBookingData] = useState({
+    checkInDate: "",
+    checkOutDate: "",
+    guests: 1,
+  });
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getRoom();
-  }, [id]);
+  }, [id, rooms]);
 
   return (
     <div className="mt-30 px-4 md:px-16 lg:px-24 xl:px-32 ">
       <RoomImages room={room} />
-      <RoomDescription room={room} />
+      <RoomDescription
+        room={room}
+        isAvailable={isAvailable}
+        setIsAvailabe={setIsAvailabe}
+        bookingData={bookingData}
+        setBookingData={setBookingData}
+        id ={id}
+      />
     </div>
   );
 };

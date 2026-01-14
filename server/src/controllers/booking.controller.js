@@ -5,10 +5,12 @@ import Room from "../../db/models/room.model.js";
 // function to check room Availability
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
   try {
+    const checkIn = new Date(checkInDate).toISOString().split('T')[0];
+    const checkOut = new Date(checkOutDate).toISOString().split('T')[0];
     const bookings = await Booking.find({
       room,
-      checkInDate: { $lte: checkOutDate },
-      checkOutDate: { $gte: checkInDate }
+      checkInDate: { $lte: checkOut },
+      checkOutDate: { $gte: checkIn }
     });
 
     const isAvailable = bookings.length === 0;
@@ -23,9 +25,12 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
 //  check room Availability
 export const checkAvailabilityApi = async (req, res) => {
   try {
+
     const { checkInDate, checkOutDate, room } = req.body;
+    const checkIn = new Date(checkInDate).toISOString().split('T')[0];
+    const checkOut = new Date(checkOutDate).toISOString().split('T')[0];
     const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
-    return res.json({ success: true, isAvailable });
+    return res.json({ success: true, isAvailable, checkIn, checkOut });
   } catch (error) {
     console.log(error);
     return res.json({ success: false, err: error.message, stack: error.stack });
