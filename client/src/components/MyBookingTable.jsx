@@ -1,8 +1,8 @@
 import React from "react";
 import { assets, userBookingsDummyData } from "../assets/assets";
 
-const MyBookingTable = () => {
-  console.log(userBookingsDummyData[0]);
+const MyBookingTable = ({ bookingData }) => {
+  // console.log(userBookingsDummyData[0]);
   function formatDate(dateString) {
     const date = new Date(dateString); // convert string to Date object
 
@@ -31,7 +31,7 @@ const MyBookingTable = () => {
 
   // Example usage
   const formatted = formatDate("2025-04-30T00:00:00.000Z");
-  console.log(formatted);
+  // console.log(formatted);
 
   return (
     <div className="mt-12">
@@ -51,7 +51,7 @@ const MyBookingTable = () => {
             </tr>
           </thead>
           <tbody>
-            {userBookingsDummyData.map((booking, index) => (
+            {bookingData?.map((booking, index) => (
               <tr key={index}>
                 {/* Hotels Column */}
                 <td className="border-b-2 border-gray-200/80 py-6">

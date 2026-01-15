@@ -57,7 +57,7 @@ export const createBooking = async (req, res) => {
     // calculate total price per night
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
-    const timeDiff = checkIn.getTime() - checkOut.getTime();
+    const timeDiff = checkOut.getTime() - checkIn.getTime();
     const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
     totalPrice *= nights;
 

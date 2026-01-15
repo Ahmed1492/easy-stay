@@ -52,6 +52,7 @@ const RoomCheckAvailabiltiy = ({
           checkOutDate: new Date(bookingData.checkOutDate),
           room: id,
           guests: bookingData.guests,
+          paymentMethod : "Pay At Hotel"
         },
         {
           headers: {
