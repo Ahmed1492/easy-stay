@@ -18,6 +18,7 @@
     "express": "^5.2.1",
     "mongoose": "^9.0.1",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.12",
     "nodemon": "^3.1.11",
     "svix": "^1.82.0"
   }
