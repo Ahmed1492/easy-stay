@@ -36,6 +36,7 @@ const ReventBookingTable = ({ dashboardData }) => {
       status: "Pending",
     },
   ];
+  console.log(dashboardData);
 
   return (
     <div className="mt-9 border border-gray-100 rounded-lg w-[97%] lg:w-[87%] xl:w-[60%] max-h-52 overflow-y-scroll">
@@ -51,9 +52,9 @@ const ReventBookingTable = ({ dashboardData }) => {
         <tbody>
           {dashboardData?.bookings?.map((item, index) => (
             <tr key={index} className="border-b border-gray-200">
-              <td className="py-4 px-3">{item.user}</td>
-              <td className="px-3 text-left">{item.room}</td>
-              <td className="px-3 text-center">${item.amount}</td>
+              <td className="py-4 px-3">{item?.user.username || ""}</td>
+              <td>{item.room.roomType}</td>
+              <td className="px-3 text-center">${item.totalPrice}</td>
               <td className="px-3 text-center">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${

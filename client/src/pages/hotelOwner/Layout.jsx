@@ -7,9 +7,9 @@ import { useAppContext } from "../../context/AppContext";
 const Layout = () => {
   const { isOwner, navigate } = useAppContext();
 
-  // useEffect(() => {
-  //   if (!isOwner) return navigate("/");
-  // }, [isOwner]);
+  useEffect(() => {
+    if (!isOwner) return navigate("/");
+  }, [isOwner]);
   return (
     <div className="">
       <div className="flex gap-4.5">

@@ -11,7 +11,7 @@ const AddRoom = () => {
           fuga suscipit blanditiis odio pariatur ab sit quidem explicabo nihil
           fuga suscipit blanditiis odio pariatur ab sit quidem explicabo nihil
           voluptas?
-        </p>
+        </p> 
       </div>
       <AddRoomDetails />
     </div>

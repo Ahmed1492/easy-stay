@@ -79,7 +79,7 @@ const Dashboard = () => {
 
       <h3 className="text-2xl mt-9 text-gray-700">Recent Bookings</h3>
       <div className="w-full">
-        <RecentBookingTable dashboardData ={dashboardData} />
+        <RecentBookingTable dashboardData={dashboardData} />
       </div>
     </div>
   );
