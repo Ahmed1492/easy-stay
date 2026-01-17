@@ -21,26 +21,36 @@ const clerkwebhooks = async (req, res) => {
     const payload = JSON.parse(req.rawBody.toString());
     const { data, type } = payload;
 
-    const userData = {
-      _id: data.id,
-      email: data.email_addresses?.[0]?.email_address || "",
-      username: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-      image: data.image_url || "",
-    };
+
 
     switch (type) {
-      case "user.created":
+      case "user.created": {
+        const userData = {
+          _id: data.id,
+          email: data.email_addresses?.[0]?.email_address || "",
+          username: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+          image: data.image_url || "",
+        };
         await User.create(userData);
         console.log(" User created:", userData);
         break;
-      case "user.updated":
+      }
+      case "user.updated": {
+        const userData = {
+          _id: data.id,
+          email: data.email_addresses?.[0]?.email_address || "",
+          username: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+          image: data.image_url || "",
+        };
         await User.findByIdAndUpdate(data.id, userData);
         console.log(" User updated:", userData);
         break;
-      case "user.deleted":
+      }
+      case "user.deleted": {
         await User.findByIdAndDelete(data.id);
         console.log(" User deleted:", data.id);
         break;
+      }
       default:
         console.log(" Unknown webhook type:", type);
         break;
