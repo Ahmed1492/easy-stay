@@ -16,7 +16,7 @@ const FeaturedDestination = () => {
       } else {
         toast.error(myResponse.data.message);
       }
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
     } catch (error) {
       toast.error(error.message);
     }

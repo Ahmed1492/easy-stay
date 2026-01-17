@@ -92,7 +92,7 @@ const AddRoomDetails = () => {
           },
         }
       );
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
 
       if (myResponse.data.success) {
         toast.success(myResponse.data.message || "room added successfully");
@@ -123,9 +123,7 @@ const AddRoomDetails = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    console.log(inputs);
-  }, [inputs]);
+
   return (
     <div className="mt-10">
       {/* IMAGES */}
@@ -149,7 +147,7 @@ const AddRoomDetails = () => {
               accept="image/*"
               onChange={(e) => {
                 handleImageChange(key, e.target.files[0]);
-                console.log(key, e.target.files[0]);
+                // console.log(key, e.target.files[0]);
               }}
             />
           </label>

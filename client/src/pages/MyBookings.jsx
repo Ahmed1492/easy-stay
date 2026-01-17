@@ -19,7 +19,7 @@ const MyBookings = () => {
           },
         }
       );
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
       if (myResponse.data.success) {
         setBookingData(myResponse.data.bookings);
       }

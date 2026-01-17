@@ -6,7 +6,7 @@ const isAuth = async (req, res, next) => {
   try {
 
     const userId = req.auth?.userId;
-    console.log('userId ', userId);
+    // console.log('userId ', userId);
     if (!userId) {
       return res.json({ success: false, message: 'you are not authorized , login First' });
     } else {

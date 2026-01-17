@@ -19,7 +19,7 @@ const HotelReg = () => {
       let values = e.target.value;
       let newObj = { ...inputsData };
       newObj[keys] = values;
-      console.log(newObj);
+      // console.log(newObj);
       setInputsData(newObj);
     } catch (error) {
       toast.error(error.message);

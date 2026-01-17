@@ -24,7 +24,7 @@ const HotelForm = () => {
         },
       }
     );
-    console.log(myResponse.data);
+    // console.log(myResponse.data);
     setSearchCities((prev) => {
       const safePrev = Array.isArray(prev) ? prev : [];
       return [...safePrev, destination].slice(-3);

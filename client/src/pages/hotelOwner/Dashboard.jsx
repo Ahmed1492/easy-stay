@@ -16,7 +16,7 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${await getToken()}` },
         }
       );
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
       if (myResponse.data.success) {
         setDashboardData(myResponse.data.dashboardData);
       } else {
@@ -29,6 +29,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       getDashboardData();
     }
   }, [user]);

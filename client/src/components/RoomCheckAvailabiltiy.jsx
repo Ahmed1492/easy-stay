@@ -13,6 +13,13 @@ const RoomCheckAvailabiltiy = ({
   const { backEndUrl, getToken, navigate } = useAppContext();
 
   const handleCheckAvailability = async () => {
+    if (
+      bookingData.checkInDate === "" ||
+      !bookingData.checkOutDate === "" ||
+      bookingData.guests < 1
+    ) {
+      return toast.error("all inputs should be filled");
+    }
     try {
       let myResponse = await axios.post(
         `${backEndUrl}/api/booking/check-availability`,
@@ -27,7 +34,7 @@ const RoomCheckAvailabiltiy = ({
           },
         }
       );
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
 
       if (myResponse.data.success) {
         if (myResponse.data.isAvailable) {
@@ -52,7 +59,7 @@ const RoomCheckAvailabiltiy = ({
           checkOutDate: new Date(bookingData.checkOutDate),
           room: id,
           guests: bookingData.guests,
-          paymentMethod : "Pay At Hotel"
+          paymentMethod: "Pay At Hotel",
         },
         {
           headers: {
@@ -60,7 +67,7 @@ const RoomCheckAvailabiltiy = ({
           },
         }
       );
-      console.log(myResponse.data);
+      // console.log(myResponse.data);
       if (myResponse.data.success) {
         toast.success(myResponse.data.message || "Room Booked Successfulye");
         navigate("/my-bookings");
