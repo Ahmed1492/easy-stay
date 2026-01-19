@@ -55,19 +55,21 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 
 ---
 
-## 🏨 Hotel & Room Management (Admin)
+## 🏨 Admin Features
+
+### Hotel & Room Management
 - Each admin manages **only their own hotels**  
 - Create new hotels and add rooms  
-- Update or remove rooms within their hotels  
+- Update or remove rooms  
 - Control room availability status  
 - View all rooms for the hotels they own  
 
----
+### Booking Management
+- Users can view their own booking history  
+- Admins can:  
+  - View and manage bookings for their hotels  
+  - Update booking statuses  
+  - Monitor room availability  
 
-## 📦 Booking Management
-- **Users:** View personal booking history  
-- **Admins:**  
-  - View all bookings for their hotels only  
-  - Update booking statuses for their hotels  
   - Monitor room availability for their hotels  
 
