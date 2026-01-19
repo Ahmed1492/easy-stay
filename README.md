@@ -38,7 +38,7 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 ---
 
 ## 🎥 Demo
-[Demo link here]  
+[[Demo link here]  https://easy-stay-rouge.vercel.app/](https://easy-stay-rouge.vercel.app/)
 
 ---
 
