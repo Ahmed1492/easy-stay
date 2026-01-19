@@ -157,39 +157,54 @@ export const getHotelBookins = async (req, res) => {
 export const striptePayment = async (req, res) => {
   try {
     const { bookingId } = req.body;
-    const booking = await Booking.findById(bookingId);
-    const roomDate = await Room.findById(booking.room).populate('hotel');
-    const totalPrice = booking.totalPrice;
-    // get frontend url  => to know from where we make api request
-    const { origin } = req.headers;
-    // Stripte instance
-    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-    const line_items = [
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: roomDate.hotel.name
-          },
-          unit_amount: totalPrice * 100
-        },
-        quantity: 1,
 
-      }
-    ];
-    // Create checkout session
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    const roomDate = await Room.findById(booking.room).populate('hotel');
+    if (!roomDate || !roomDate.hotel) {
+      return res.status(404).json({ success: false, message: "Room or Hotel not found" });
+    }
+
+    const amount = Math.round(Number(booking.totalPrice) * 100);
+    if (!amount || amount <= 0) {
+      return res.json({ success: false, message: "Invalid amount" });
+    }
+
+    const origin = req.headers.origin;
+
+    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+
     const session = await stripeInstance.checkout.sessions.create({
-      line_items,
       mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: roomDate.hotel.name,
+            },
+            unit_amount: amount,
+          },
+          quantity: 1,
+        },
+      ],
       success_url: `${origin}/loader/my-bookings`,
       cancel_url: `${origin}/my-bookings`,
-      metadata: {
-        bookingId
-      }
+      metadata: { bookingId },
     });
+
     res.json({ success: true, url: session.url });
+
   } catch (error) {
-    return res.json({ success: false, err: error.massge, message: 'Payment Failed' });
+    console.error("Stripe error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-}
+};
+
 
