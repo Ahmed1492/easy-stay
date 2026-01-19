@@ -10,10 +10,19 @@ import connectCloudinary from './src/config/cloudinary.js';
 import bookingRouter from './src/routes/booking.router.js';
 import { clerkMiddleware } from '@clerk/express';
 import { stripeWebHooks } from './src/controllers/stripeWebHook.js';
+
+
 connect();
 connectCloudinary();
 const app = express();
 const port = process.env.PORT || 3000;
+
+//  Stripe webhook FIRST (RAW BODY)
+app.post(
+  '/api/stripe',
+  express.raw({ type: 'application/json' }),
+  stripeWebHooks
+);
 
 // Capture raw body for Clerk webhook verification
 app.use(
@@ -26,11 +35,14 @@ app.use(
 app.use(cors());
 
 
-// API to listen to Stripe Webhooks
-app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
-
 // Webhook endpoint (POST) : Webhook route → NO clerkMiddleware
 app.post('/api/clerk', clerkwebhooks);
+
+
+
+// // API to listen to Stripe Webhooks
+// app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
+
 
 // All other routes → use clerkMiddleware
 app.use(clerkMiddleware());
