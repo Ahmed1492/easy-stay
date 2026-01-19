@@ -173,7 +173,7 @@ export const striptePayment = async (req, res) => {
       return res.json({ success: false, message: "Invalid amount" });
     }
 
-    const origin = req.headers.origin;
+    const origin = req.headers.origin || process.env.FRONTEND_URL;
 
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 

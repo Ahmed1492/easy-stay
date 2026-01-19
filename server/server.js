@@ -27,7 +27,8 @@ app.use(cors());
 
 
 // API to listen to Stripe Webhooks
-app.post('/api/stripe' , express.raw({type : "application/json"}) , stripeWebHooks )
+app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
+
 
 // Webhook endpoint (POST) : Webhook route → NO clerkMiddleware
 app.post('/api/clerk', clerkwebhooks);
