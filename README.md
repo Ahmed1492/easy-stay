@@ -15,10 +15,13 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 ## 🏨 Hotel Search & Filtering
 - Search hotels by city  
 - View all hotels with dynamic filtering  
+- Get **recommended hotels** based on search criteria  
 - Filter by room type (Single, Double, Luxury, Family)  
 - Filter by price range  
 - Sort results by price or newest listings  
 - Clear all filters instantly  
+
+
 
 ---
 
@@ -53,16 +56,18 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 ---
 
 ## 🏨 Hotel & Room Management (Admin)
+- Each admin manages **only their own hotels**  
 - Create new hotels and add rooms  
-- Update or remove rooms  
+- Update or remove rooms within their hotels  
 - Control room availability status  
-- View all rooms for each hotel  
+- View all rooms for the hotels they own  
 
 ---
 
 ## 📦 Booking Management
 - **Users:** View personal booking history  
 - **Admins:**  
-  - View all bookings for their hotels  
-  - Update booking statuses  
-  - Monitor room availability  
+  - View all bookings for their hotels only  
+  - Update booking statuses for their hotels  
+  - Monitor room availability for their hotels  
+
