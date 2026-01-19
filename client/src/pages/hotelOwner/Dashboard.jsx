@@ -13,8 +13,11 @@ const Dashboard = () => {
       const myResponse = await axios.get(
         `${backEndUrl}/api/booking/hotel-bookings`,
         {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        }
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        },
       );
       // console.log(myResponse.data);
       if (myResponse.data.success) {

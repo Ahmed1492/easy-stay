@@ -15,6 +15,12 @@ connectCloudinary();
 const app = express();
 const port = process.env.PORT || 3000;
 
+
+
+// API to listen to Stripe Webhooks
+app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
+
+
 // Capture raw body for Clerk webhook verification
 app.use(
   express.json({
@@ -25,9 +31,6 @@ app.use(
 );
 app.use(cors());
 
-
-// API to listen to Stripe Webhooks
-app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
 
 
 // Webhook endpoint (POST) : Webhook route → NO clerkMiddleware

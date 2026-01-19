@@ -24,7 +24,10 @@ export const AppProvider = ({ children }) => {
       if (!token) return;
 
       const { data } = await axios.get(`${backEndUrl}/api/user`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (data.success) {
@@ -42,14 +45,20 @@ export const AppProvider = ({ children }) => {
 
   const fetchRooms = async () => {
     try {
-      const myResponse = await axios.get(`${backEndUrl}/api/rooms`);
+      const myResponse = await axios.get(`${backEndUrl}/api/rooms`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
       if (myResponse.data.success) {
         setRooms(myResponse.data.rooms);
       } else {
         toast.error(myResponse.data.message);
+        console.log(myResponse);
       }
       // console.log(myResponse.data);
     } catch (error) {
+      console.log(error);
       toast.error(error.message);
     }
   };

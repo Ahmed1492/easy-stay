@@ -88,9 +88,10 @@ const AddRoomDetails = () => {
         formData,
         {
           headers: {
+            "ngrok-skip-browser-warning": "true",
             Authorization: `Bearer ${await getToken()}`,
           },
-        }
+        },
       );
       // console.log(myResponse.data);
 

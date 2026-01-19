@@ -33,9 +33,10 @@ const HotelReg = () => {
         inputsData,
         {
           headers: {
+            "ngrok-skip-browser-warning": "true",
             Authorization: `Bearer ${await getToken()}`,
           },
-        }
+        },
       );
       if (myResponse.data.success) {
         toast.success(myResponse.data.message);

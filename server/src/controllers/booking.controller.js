@@ -43,7 +43,7 @@ export const checkAvailabilityApi = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
 
-    const { room, checkInDate, checkOutDate, guests } = req.body;
+    const { room, checkInDate, checkOutDate, guests, isPaid } = req.body;
     const user = req.user._id;
     const isAvilable = checkAvailability({ room, checkInDate, checkOutDate });
     if (!isAvilable) {
@@ -62,7 +62,7 @@ export const createBooking = async (req, res) => {
     const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
     totalPrice *= nights;
 
-    const booking = await Booking.create({ user, room, hotel: roomData.hotel._id, checkInDate, checkOutDate, guests: +guests, totalPrice });
+    const booking = await Booking.create({ user, room, hotel: roomData.hotel._id, checkInDate, checkOutDate, guests: +guests, totalPrice, isPaid });
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
@@ -173,30 +173,35 @@ export const striptePayment = async (req, res) => {
       return res.json({ success: false, message: "Invalid amount" });
     }
 
-    const origin = req.headers.origin || process.env.FRONTEND_URL;
+    const origin = req.headers.origin;
 
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+    console.log('bookingId 1', bookingId);
+
+    const line_items = [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: roomDate.hotel.name,
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      },
+    ];
+    console.log('bookingId 2', bookingId);
 
     const session = await stripeInstance.checkout.sessions.create({
+      line_items,
       mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: roomDate.hotel.name,
-            },
-            unit_amount: amount,
-          },
-          quantity: 1,
-        },
-      ],
       success_url: `${origin}/loader/my-bookings`,
       cancel_url: `${origin}/my-bookings`,
       metadata: { bookingId },
     });
+    console.log('bookingId 3', bookingId);
 
-    res.json({ success: true, url: session.url });
+    return res.json({ success: true, url: session.url });
 
   } catch (error) {
     console.error("Stripe error:", error);

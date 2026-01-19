@@ -2,32 +2,52 @@ import stripe from "stripe";
 import Booking from "../../db/models/booking.model.js";
 
 // handle stripe webhooks
-export const stripeWebHooks = async (request, response) => {
-  // stripe gateway intialize
+export const stripeWebHooks = async (req, res) => {
   const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-  const sig = request.headers['stripe-signatue'];
+  const sig = req.headers['stripe-signature'];
+
   let event;
   try {
-    event = stripeInstance.webhooks.constructEvent(request.body, sig, process.env.STRIPTE_WEBHOOK_SECRET);
-  } catch (error) {
-    return response.stauts(400).send(`Webhook Error: ${error.message}`);
+    event = stripeInstance.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPTE_WEBHOOK_SECRET // fix spelling
+    );
+    console.log("Webhook verified successfully");
+  } catch (err) {
+    console.error("Webhook verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-  // handle the event
-  if (event.type === "payment_intent.succeeded") {
-    const paymentIntent = event.data.object;
-    const paymentIntentId = paymentIntent.id;
 
-    // getting session metaData
-    const session = await stripeInstance.checkout.sessions.list({
-      payment_intent: paymentIntentId
-    });
-    const { bookingId } = session.data[0].metadata;
+  console.log("Event type:", event.type);
 
-    // mark payment as paid
-    await Booking.findByIdAndUpdate(bookingId, { isPaid: true, payment: "Stripe" });
+  // ✅ Listen to checkout.session.completed
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    console.log("Session received:", session);
+
+    const bookingId = session.metadata?.bookingId;
+    console.log("Booking ID from metadata:", bookingId);
+
+    if (!bookingId) {
+      console.error("No bookingId in session metadata!");
+      return res.status(400).send("No bookingId found");
+    }
+
+    try {
+      const updatedBooking = await Booking.findByIdAndUpdate(
+        bookingId,
+        { isPaid: true, payment: "Stripe" },
+        { new: true }
+      );
+      console.log("Booking updated:", updatedBooking);
+    } catch (err) {
+      console.error("Failed to update booking:", err.message);
+    }
   } else {
-    console.log("Unhandled event type : ", event.type);
-
+    console.log("Unhandled event type:", event.type);
   }
-  response.json({ received: true });
+
+  res.json({ received: true });
 };
+

@@ -44,8 +44,8 @@ const AllRoomsTable = ({ myBooking, setMyBookings, fetchHotelRooms }) => {
     //  Update UI immediately
     setMyBookings((prev) =>
       prev.map((room) =>
-        room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
-      )
+        room._id === id ? { ...room, isAvailable: !room.isAvailable } : room,
+      ),
     );
 
     try {
@@ -53,8 +53,11 @@ const AllRoomsTable = ({ myBooking, setMyBookings, fetchHotelRooms }) => {
         `${backEndUrl}/api/rooms/toggle-availability`,
         { roomId: id },
         {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        }
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        },
       );
 
       if (!data.success) {
@@ -66,8 +69,8 @@ const AllRoomsTable = ({ myBooking, setMyBookings, fetchHotelRooms }) => {
       //  Rollback if API fails
       setMyBookings((prev) =>
         prev.map((room) =>
-          room._id === id ? { ...room, isAvailable: !room.isAvailable } : room
-        )
+          room._id === id ? { ...room, isAvailable: !room.isAvailable } : room,
+        ),
       );
 
       toast.error(error.message);

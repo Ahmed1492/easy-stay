@@ -24,15 +24,18 @@ const RoomCheckAvailabiltiy = ({
       let myResponse = await axios.post(
         `${backEndUrl}/api/booking/check-availability`,
         {
-          checkInDate: new Date(bookingData.checkInDate),
-          checkOutDate: new Date(bookingData.checkOutDate),
+          checkInDate: new Date(bookingData.checkInDate)
+            .toISOString()
+            .split("T")[0],
+          checkOutDate: bookingData.checkOutDate,
           room: id,
         },
         {
           headers: {
+            "ngrok-skip-browser-warning": "true",
             Authorization: `Bearer ${await getToken()}`,
           },
-        }
+        },
       );
       // console.log(myResponse.data);
 
@@ -55,17 +58,19 @@ const RoomCheckAvailabiltiy = ({
       let myResponse = await axios.post(
         `${backEndUrl}/api/booking/create`,
         {
-          checkInDate: new Date(bookingData.checkInDate),
-          checkOutDate: new Date(bookingData.checkOutDate),
+          checkInDate: bookingData.checkInDate,
+          checkOutDate: bookingData.checkOutDate,
           room: id,
           guests: bookingData.guests,
           paymentMethod: "Pay At Hotel",
+          isPaid: false,
         },
         {
           headers: {
+            "ngrok-skip-browser-warning": "true",
             Authorization: `Bearer ${await getToken()}`,
           },
-        }
+        },
       );
       // console.log(myResponse.data);
       if (myResponse.data.success) {

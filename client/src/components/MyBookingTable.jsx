@@ -117,13 +117,13 @@ const MyBookingTable = ({ bookingData, handlePayment }) => {
                     <div className="flex flex-col gap-2.5 items-center">
                       <div className="flex items-center gap-2.5 px-5">
                         <span
-                          className={`w-2 h-2 rounded-full ${
-                            booking.isPaid ? "bg-green-600 " : "bg-red-600"
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            booking.isPaid ? "bg-green-500 " : "bg-red-500"
                           }`}
                         ></span>
                         <p
                           className={`${
-                            booking.isPaid ? "text-green-600" : "text-red-600"
+                            booking.isPaid ? "text-green-500 font-semibold" : "text-red-500 font-semibold"
                           }`}
                         >
                           {booking.isPaid ? "Paid" : "Unpaid"}

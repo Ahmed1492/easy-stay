@@ -16,8 +16,11 @@ const ListRoom = () => {
       const myResponse = await axios.get(
         `${backEndUrl}/api/rooms/owner-rooms`,
         {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        }
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        },
       );
       setMyBookings(myResponse.data.rooms);
     } catch (error) {

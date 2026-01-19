@@ -20,6 +20,7 @@ const MyBookings = () => {
         `${backEndUrl}/api/booking/user-bookings`,
         {
           headers: {
+            "ngrok-skip-browser-warning": "true",
             Authorization: `Bearer ${await getToken()}`,
           },
         },
@@ -34,6 +35,8 @@ const MyBookings = () => {
   };
 
   const handlePayment = async (id) => {
+    console.log(id);
+
     try {
       const myResponse = await axios.post(
         `${backEndUrl}/api/booking/stripe-payment`,
@@ -41,6 +44,7 @@ const MyBookings = () => {
         {
           headers: {
             Authorization: `Bearer ${await getToken()}`,
+            "ngrok-skip-browser-warning": "true",
           },
         },
       );
