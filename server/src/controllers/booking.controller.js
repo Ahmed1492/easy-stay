@@ -2,7 +2,7 @@ import Booking from "../../db/models/booking.model.js";
 import Hotel from "../../db/models/hotel.model.js";
 import Room from "../../db/models/room.model.js";
 import transporter from "../config/nodemailer.js";
-
+import stripe from 'stripe';
 // function to check room Availability
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
   try {
@@ -151,4 +151,45 @@ export const getHotelBookins = async (req, res) => {
   }
 };
 
+
+// add payment methode
+
+export const striptePayment = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const booking = await Booking.findById(bookingId);
+    const roomDate = await Room.findById(booking.room).populate('hotel');
+    const totalPrice = booking.totalPrice;
+    // get frontend url  => to know from where we make api request
+    const { origin } = req.headers;
+    // Stripte instance
+    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+    const line_items = [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: roomDate.hotel.name
+          },
+          unit_amount: totalPrice * 100
+        },
+        quantity: 1,
+
+      }
+    ];
+    // Create checkout session
+    const session = await stripeInstance.checkout.sessions.create({
+      line_items,
+      mode: "payment",
+      success_url: `${origin}/loader/my-bookings`,
+      cancel_url: `${origin}/my-bookings`,
+      metadata: {
+        bookingId
+      }
+    });
+    res.json({ success: true, url: session.url });
+  } catch (error) {
+    return res.json({ success: false, err: error.massge, message: 'Payment Failed' });
+  }
+}
 

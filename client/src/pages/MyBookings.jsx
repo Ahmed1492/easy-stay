@@ -8,6 +8,11 @@ import { useAppContext } from "../context/AppContext";
 const MyBookings = () => {
   const { navigate, backEndUrl, getToken, user } = useAppContext();
 
+  const myBokkingsHeader = {
+    title: "My Bookings",
+    desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
+    style: "items-start justify-start text-left",
+  };
   const [bookingData, setBookingData] = useState([]);
   const getUserBookings = async () => {
     try {
@@ -17,7 +22,7 @@ const MyBookings = () => {
           headers: {
             Authorization: `Bearer ${await getToken()}`,
           },
-        }
+        },
       );
       // console.log(myResponse.data);
       if (myResponse.data.success) {
@@ -28,12 +33,27 @@ const MyBookings = () => {
     }
   };
 
-  const myBokkingsHeader = {
-    title: "My Bookings",
-    desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
-    style: "items-start justify-start text-left",
+  const handlePayment = async (id) => {
+    try {
+      const myResponse = await axios.post(
+        `${backEndUrl}/api/booking/stripe-payment`,
+        { bookingId: id },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        },
+      );
+      console.log(myResponse.data);
+      if (myResponse.data.success) {
+        window.location.href = myResponse.data.url;
+      } else {
+        toast.error(myResponse.data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     getUserBookings();
@@ -45,7 +65,7 @@ const MyBookings = () => {
         description={myBokkingsHeader.desc}
         style={myBokkingsHeader.style}
       />
-      <MyBookingTable bookingData={bookingData} />
+      <MyBookingTable handlePayment={handlePayment} bookingData={bookingData} />
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { roomsDummyData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-import axios from "axios";
 const RecommendedHotels = () => {
   const { navigate, backEndUrl, rooms, searchCities } = useAppContext();
   const [recommended, setRecommended] = useState([]);

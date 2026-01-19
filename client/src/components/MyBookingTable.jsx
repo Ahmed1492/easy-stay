@@ -1,7 +1,7 @@
 import React from "react";
 import { assets, userBookingsDummyData } from "../assets/assets";
 
-const MyBookingTable = ({ bookingData }) => {
+const MyBookingTable = ({ bookingData, handlePayment }) => {
   // console.log(userBookingsDummyData[0]);
   function formatDate(dateString) {
     const date = new Date(dateString); // convert string to Date object
@@ -130,7 +130,10 @@ const MyBookingTable = ({ bookingData }) => {
                         </p>
                       </div>
                       {!booking.isPaid && (
-                        <button className="border border-gray-800/80 px-5 py-1.5 rounded-full text-sm cursor-pointer ">
+                        <button
+                          onClick={() => handlePayment(booking._id)}
+                          className="border border-gray-800/80 px-5 py-1.5 rounded-full text-sm cursor-pointer "
+                        >
                           Pay now
                         </button>
                       )}

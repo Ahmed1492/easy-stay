@@ -4,27 +4,10 @@ import { roomsDummyData } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-import axios from "axios";
 const FeaturedDestination = () => {
-  const { navigate, backEndUrl } = useAppContext();
-  const [rooms, setRooms] = useState([]);
-  const FetchFeaturedData = async () => {
-    try {
-      const myResponse = await axios.get(`${backEndUrl}/api/rooms`);
-      if (myResponse.data.success) {
-        setRooms(myResponse.data.rooms);
-      } else {
-        toast.error(myResponse.data.message);
-      }
-      // console.log(myResponse.data);
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    FetchFeaturedData();
-  }, []);
+  const { navigate, backEndUrl , rooms } = useAppContext();
+
+
   return (
     rooms.length > 0 && (
       <div className="">
