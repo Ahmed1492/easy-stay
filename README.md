@@ -30,9 +30,6 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 - Cloudinary  
 - Nodemailer  
 - Multer  
-- Svix  
-- CORS  
-- Dotenv  
 - Nodemon  
 
 ---
