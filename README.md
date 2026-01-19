@@ -35,6 +35,16 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 ---
 
 
+### 🏨 Hotel Search & Filtering
+- Search hotels by city  
+- View all hotels with dynamic filtering  
+- Filter by room type (Single, Double, Luxury, Family)  
+- Filter by price range  
+- Sort results by price or newest listings  
+- Clear all filters instantly  
+
+---
+
 ### 🔴 Live Demo
 - https://easy-stay-rouge.vercel.app/  
 
