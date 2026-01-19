@@ -6,50 +6,19 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 
 ---
 
-## 📖 Project Overview
-- **For Users:** Browse hotels, check room availability by date, book rooms, and pay securely.  
-- **For Admins:** Create hotels, add/manage rooms, update availability, and oversee bookings.  
-- **Core Integrations:** Stripe (payments), Clerk (authentication), Cloudinary (image uploads), Nodemailer (email notifications).  
+## 🎥 Demo
+- 🔴 **Live Demo:** [https://easy-stay-rouge.vercel.app/](https://easy-stay-rouge.vercel.app/)  
+- 📼 **Recorded Demo:** [Recorded Demo Link Here](#)  
 
 ---
 
-## 🛠️ Technologies Used
-
-### Frontend
-- React + Vite  
-- Tailwind CSS  
-- Clerk React  
-- Axios  
-- React Hot Toast  
-
-### Backend
-- Node.js + Express  
-- MongoDB with Mongoose  
-- Clerk  
-- Stripe API  
-- Cloudinary  
-- Nodemailer  
-- Multer  
-- Nodemon  
-
----
-
-
-### 🏨 Hotel Search & Filtering
+## 🏨 Hotel Search & Filtering
 - Search hotels by city  
 - View all hotels with dynamic filtering  
 - Filter by room type (Single, Double, Luxury, Family)  
 - Filter by price range  
 - Sort results by price or newest listings  
 - Clear all filters instantly  
-
----
-
-### 🔴 Live Demo
-- https://easy-stay-rouge.vercel.app/  
-
-### 📼 Recorded Demo
-- [Recorded Demo Link Here](#)  
 
 ---
 
@@ -97,5 +66,3 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
   - View all bookings for their hotels  
   - Update booking statuses  
   - Monitor room availability  
-
----
