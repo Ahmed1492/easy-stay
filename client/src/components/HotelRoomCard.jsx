@@ -19,7 +19,7 @@ const HotelRoomCard = ({ room }) => {
         {/* Title */}
         <span className="text-gray-600/80">{room?.hotel?.city}</span>
         <h3 className="text-xl lg:text-3xl font-playfair">
-          {hotelDummyData.name}
+          {room?.hotel?.name}
         </h3>
 
         {/* Reviews */}
@@ -45,7 +45,7 @@ const HotelRoomCard = ({ room }) => {
         {/* Address */}
         <div className="flex items-center gap-2 text-gray-500 text-sm  ">
           <img className="w-4" src={assets.locationIcon} alt="" />
-          <p className="">{hotelDummyData.address}</p>
+          <p className="">{room?.hotel?.address}</p>
         </div>
 
         {/*amenities  */}

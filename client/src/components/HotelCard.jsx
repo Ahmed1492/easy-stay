@@ -1,6 +1,8 @@
 import { assets, hotelDummyData, roomsDummyData } from "../assets/assets";
 import { Link } from "react-router-dom";
 const HotelCard = ({ room, index }) => {
+  console.log(room);
+
   return (
     <Link
       onClick={() => scrollTo(0, 0)}
@@ -12,10 +14,14 @@ const HotelCard = ({ room, index }) => {
           Best Seller
         </span>
       )}
-      <img className="w-full rounded-t-md" src={room.images[0]} alt="" />
+      <img
+        className="w-full h-[13rem] xl:h-[15rem] object-cover rounded-t-md"
+        src={room.images[0]}
+        alt=""
+      />
       <div className="flex items-center justify-between px-4">
         <p className="font-playfair text-2xl text-gray-800">
-          {hotelDummyData.name}
+          {room?.hotel?.name}
         </p>
         <div className="flex items-center gap-1">
           <img className="w-4" src={assets.starIconFilled} alt="" />
@@ -25,7 +31,7 @@ const HotelCard = ({ room, index }) => {
 
       <div className="flex items-center gap-2 text-gray-500 text-sm px-4 ">
         <img className="w-4" src={assets.locationIcon} alt="" />
-        <p>{hotelDummyData.address}</p>
+        <p>{room?.hotel?.address}</p>
       </div>
 
       <div className="flex items-center justify-between px-4">

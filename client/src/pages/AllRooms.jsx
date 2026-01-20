@@ -87,7 +87,7 @@ const AllRooms = () => {
         (room) =>
           matchesRoomType(room) &&
           matchesPriceRnage(room) &&
-          filterDestination(room)
+          filterDestination(room),
       )
       .sort(sortRooms);
   }, [rooms, selectedFilters, searchParams, selectedSort]);
@@ -105,13 +105,11 @@ const AllRooms = () => {
   return (
     <div className="mt-20 px-4 md:px-16 lg:px-24 xl:px-32 min-h-[90vh] w-full">
       <div className="grid grid-1 lg:grid-cols-2   gap-7 w-full">
-       
-          <HetelRooms
-            matchesRoomType={matchesRoomType}
-            matchesPriceRnage={matchesPriceRnage}
-            rooms={filteredRooms}
-          />
-        
+        <HetelRooms
+          matchesRoomType={matchesRoomType}
+          matchesPriceRnage={matchesPriceRnage}
+          rooms={filteredRooms}
+        />
 
         <FiltersHotelRooms
           selectedFilters={selectedFilters}

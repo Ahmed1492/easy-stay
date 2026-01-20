@@ -5,11 +5,11 @@ const Hero = () => {
   return (
     <div className="bg-hero h-screen px-6 md:px-16 lg:px-24  xl:px-32a ">
       <div className="flex flex-col gap-4 justify-center h-full ">
-        <span className="px-4 py-1.5 bg-[#49B9FF]/50 w-max mt-20 text-white rounded-full">
+        <span className=" text-sm sm:text-base px-4 py-1.5 bg-[#49B9FF]/50 w-max  mt-20 text-white rounded-lg">
           The Ultimate Hotel Experience
         </span>
 
-        <h2 className="text-6xl font-bold text-white font-playfair">
+        <h2 className="text-4xl md:text-6xl font-bold text-white font-playfair">
           Discover Yours Perfect <br /> Gateway Destination
         </h2>
         <p className="max-w-2xl text-white">
@@ -18,6 +18,7 @@ const Hero = () => {
         </p>
 
         <HotelForm />
+  
       </div>
     </div>
   );

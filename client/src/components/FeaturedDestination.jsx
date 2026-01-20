@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 const FeaturedDestination = () => {
-  const { navigate, backEndUrl , rooms } = useAppContext();
-
+  const { navigate, backEndUrl, rooms } = useAppContext();
 
   return (
     rooms.length > 0 && (
