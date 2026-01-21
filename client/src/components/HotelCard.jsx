@@ -1,7 +1,7 @@
 import { assets, hotelDummyData, roomsDummyData } from "../assets/assets";
 import { Link } from "react-router-dom";
 const HotelCard = ({ room, index }) => {
-  console.log(room);
+  // console.log(room);
 
   return (
     <Link

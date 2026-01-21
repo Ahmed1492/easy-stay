@@ -10,7 +10,7 @@ const RoomCheckAvailabiltiy = ({
   setIsAvailabe,
   id,
 }) => {
-  const { backEndUrl, getToken, navigate } = useAppContext();
+  const { backEndUrl, getToken, navigate, user } = useAppContext();
 
   const handleCheckAvailability = async () => {
     if (
@@ -86,6 +86,9 @@ const RoomCheckAvailabiltiy = ({
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      return toast.error("Login First");
+    }
     try {
       if (!isAvailable) return await handleCheckAvailability();
 

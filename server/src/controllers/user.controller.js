@@ -34,3 +34,20 @@ export const storeUserSearchCities = async (req, res) => {
     return res.json({ success: false, error: error.message, stack: error.stack });
   }
 };
+
+
+export const getRecentSearch = async (req, res) => {
+  try {
+    const user = await req.user;
+    if (!user)
+      return res.json({ success: false, message: 'user not found' });
+
+    return res.json({ success: true, recentSearchedCities: user.recentSearchedCities });
+
+
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, error: error.message, stack: error.stack });
+  }
+};
+

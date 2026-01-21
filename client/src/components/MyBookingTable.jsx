@@ -36,114 +36,99 @@ const MyBookingTable = ({ bookingData, handlePayment }) => {
   return (
     <div className="mt-12">
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-collapse min-w-[600px] md:min-w-full">
-          <thead>
-            <tr>
-              <th className="w-2/5 text-left border-b-2 py-3 border-gray-200/80 text-gray-700">
-                Hotels
-              </th>
-              <th className="w-1/5 text-left border-b-2 py-3 text-gray-700 border-gray-200/80">
-                Date & Timing
-              </th>
-              <th className="w-1/5 text-right border-b-2 px-0 lg:px-10 xl:px-20 py-3 text-gray-700 border-gray-200/80">
-                Payment
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookingData?.map((booking, index) => (
-              <tr key={index}>
-                {/* Hotels Column */}
-                <td className="border-b-2 border-gray-200/80 py-6">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <img
-                      className="w-full md:w-[13rem] rounded-lg object-cover"
-                      src={booking.room.images[0]}
-                      alt="room"
-                    />
-                    <div className="flex flex-col justify-between">
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-1">
-                        <h3 className="text-xl md:text-2xl font-playfair">
-                          {booking.room.hotel.name}
-                        </h3>
-                        <span className="font-medium text-sm md:self-end">
-                          ({booking.room.roomType})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 text-gray-500 text-sm mb-1">
-                        <img
-                          className="w-4"
-                          src={assets.locationIcon}
-                          alt="location"
-                        />
-                        <p>{booking.hotel?.address}</p>
-                      </div>
-                      <div className="flex items-center gap-1 text-gray-500 text-sm mb-1">
-                        <img
-                          className="w-4"
-                          src={assets.guestsIcon}
-                          alt="guests"
-                        />
-                        <p>Guests: {booking.guests}</p>
-                      </div>
-                      <div className="text-gray-800 font-semibold">
-                        Total: ${booking.totalPrice}
-                      </div>
-                    </div>
-                  </div>
-                </td>
+        <div className="w-full flex flex-col gap-6">
+          {bookingData?.map((booking, index) => (
+            <div
+              key={index}
+              className="border border-gray-200/80 rounded-xl p-4 md:p-6 flex flex-col gap-6"
+            >
+              <div className="flex flex-col md:flex-row gap-4">
+                <img
+                  className="w-full md:w-[13rem] h-[160px] rounded-lg object-cover"
+                  src={booking.room.images[0]}
+                  alt="room"
+                />
 
-                {/* Date & Timing Column */}
-                <td className="border-b-2 border-gray-200/80 text-center py-4">
-                  <div className="flex flex-col md:flex-row justify-between gap-2 items-center">
-                    <div className="flex flex-col">
-                      <p className="font-semibold text-gray-700">Check-in</p>
-                      <p className="text-gray-500 text-sm">
-                        {formatDate(booking.checkInDate)}
-                      </p>
+                <div className="flex flex-col justify-between flex-1">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-xl md:text-2xl font-playfair">
+                        {booking.room.hotel.name}
+                      </h3>
+                      <span className="text-sm font-medium text-gray-600">
+                        ({booking.room.roomType})
+                      </span>
                     </div>
-                    <div className="flex flex-col">
-                      <p className="font-semibold text-gray-700">Check-out</p>
-                      <p className="text-gray-500 text-sm">
-                        {formatDate(booking.checkOutDate)}
-                      </p>
-                    </div>
-                  </div>
-                </td>
 
-                {/* Payment Column */}
-                <td className="border-b-2 px-0 lg:px-10 xl:px-20 border-gray-200/80 text-left py-4">
-                  <div className={`flex items-center justify-end gap-2.5`}>
-                    <div className="flex flex-col gap-2.5 items-center">
-                      <div className="flex items-center gap-2.5 px-5">
-                        <span
-                          className={`w-2.5 h-2.5 rounded-full ${
-                            booking.isPaid ? "bg-green-500 " : "bg-red-500"
-                          }`}
-                        ></span>
-                        <p
-                          className={`${
-                            booking.isPaid ? "text-green-500 font-semibold" : "text-red-500 font-semibold"
-                          }`}
-                        >
-                          {booking.isPaid ? "Paid" : "Unpaid"}
-                        </p>
-                      </div>
-                      {!booking.isPaid && (
-                        <button
-                          onClick={() => handlePayment(booking._id)}
-                          className="border border-gray-800/80 px-5 py-1.5 rounded-full text-sm cursor-pointer "
-                        >
-                          Pay now
-                        </button>
-                      )}
+                    <div className="flex items-center gap-1 text-gray-500 text-sm mt-1">
+                      <img
+                        className="w-4"
+                        src={assets.locationIcon}
+                        alt="location"
+                      />
+                      <p>{booking.hotel?.address}</p>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-gray-500 text-sm mt-1">
+                      <img
+                        className="w-4"
+                        src={assets.guestsIcon}
+                        alt="guests"
+                      />
+                      <p>Guests: {booking.guests}</p>
                     </div>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+                  <p className="text-gray-800 font-semibold mt-2">
+                    Total: ${booking.totalPrice}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row justify-between gap-4 bg-gray-50 rounded-lg p-4">
+                <div>
+                  <p className="font-semibold text-gray-700">Check-in</p>
+                  <p className="text-gray-500 text-sm">
+                    {formatDate(booking.checkInDate)}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-gray-700">Check-out</p>
+                  <p className="text-gray-500 text-sm">
+                    {formatDate(booking.checkOutDate)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between md:justify-end gap-4">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      booking.isPaid ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  ></span>
+                  <p
+                    className={`font-semibold ${
+                      booking.isPaid ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {booking.isPaid ? "Paid" : "Unpaid"}
+                  </p>
+                </div>
+
+                {!booking.isPaid && (
+                  <button
+                    onClick={() => handlePayment(booking._id)}
+                    className="border border-gray-800/80 px-5 py-1.5 rounded-full text-sm hover:bg-gray-100 transition cursor-pointer"
+                  >
+                    Pay now
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

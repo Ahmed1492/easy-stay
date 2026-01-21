@@ -32,7 +32,7 @@ const Home = () => {
     <>
       <Hero />
       <div className="px-6 md:px-16 lg:px-24  xl:px-32">
-        {searchCities?.length > 0 && <RecommendedHotels />}
+       <RecommendedHotels />
         <HeaderText
           title={fetureHeader.title}
           description={fetureHeader.desc}

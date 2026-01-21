@@ -10,8 +10,9 @@ export const AppProvider = ({ children }) => {
   const backEndUrl = import.meta.env.VITE_BACKEND_URL;
   const [isOwner, setIsOwner] = useState(false);
   const [showHotelReg, setShowHotelReg] = useState(false);
-  const [searchCities, setSearchCities] = useState([]);
+  const [searchCities, setSearchCities] = useState(["aa"]);
   const [rooms, setRooms] = useState([]);
+  const [recommended, setRecommended] = useState([]);
 
   const navigate = useNavigate();
   //CLECK
@@ -63,6 +64,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRooms();
@@ -86,6 +88,8 @@ export const AppProvider = ({ children }) => {
     setSearchCities,
     rooms,
     fetchRooms,
+    recommended,
+    
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
