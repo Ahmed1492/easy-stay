@@ -57,12 +57,12 @@ const ReventBookingTable = ({ dashboardData }) => {
               <td className="px-3 text-center">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    item.status === "Completed"
+                    item?.isPaid === true
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {item.status}
+                 {item?.isPaid ? "completed"  :"pending"}
                 </span>
               </td>
             </tr>

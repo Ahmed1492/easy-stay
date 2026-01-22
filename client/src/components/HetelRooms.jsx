@@ -15,13 +15,28 @@ const HetelRooms = ({ matchesRoomType, matchesPriceRnage, rooms }) => {
         laborum cupiditate! Iure dolorem, natus laudantium ipsa debitis quis.
       </p>
       <div className="flexa flex-col">
-        {rooms.map((room, index) => {
-          return (
-            <React.Fragment key={index}>
-              <HotelRoomCard room={room} />
-            </React.Fragment>
-          );
-        })}
+        {rooms.length !== 0 ? (
+          rooms.map((room, index) => {
+            return (
+              <React.Fragment key={index}>
+                <HotelRoomCard room={room} />
+              </React.Fragment>
+            );
+          })
+        ) : (
+          <div className="mt-10">
+            <div className="flex flex-col  py-10 ">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                No rooms match your search
+              </h3>
+
+              <p className="mt-3 max-w-md text-sm text-gray-500">
+                Try adjusting your filters or changing the date range to see
+                more available rooms.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

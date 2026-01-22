@@ -35,6 +35,13 @@ const Room = () => {
     getRoom();
   }, [id, rooms]);
 
+  if (!room._id)
+    return (
+      <div className="min-h-[47vh] px-4 md:px-16 lg:px-24 xl:px-32">
+        <h2 className="mt-22 text-4xl"> Room Not Found</h2>
+      </div>
+    );
+
   return (
     <div className="mt-30 px-4 md:px-16 lg:px-24 xl:px-32 ">
       <RoomImages room={room} />
@@ -44,7 +51,7 @@ const Room = () => {
         setIsAvailabe={setIsAvailabe}
         bookingData={bookingData}
         setBookingData={setBookingData}
-        id ={id}
+        id={id}
       />
     </div>
   );
