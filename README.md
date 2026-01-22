@@ -12,6 +12,30 @@ The app leverages **Clerk** for authentication and role‑based access, **Cloudi
 
 ---
 
+
+## 🧱 Tech Stack
+
+### 🎨 Frontend
+- #ReactJS  
+- #Clerk (Authentication)  
+- #Axios  
+- #ReactHotToast  
+- #TailwindCSS  
+
+### ⚙️ Backend
+- #NodeJS & #ExpressJS  
+- #MongoDB & #Mongoose  
+- #Clerk (Auth & Webhooks)  
+- #Stripe (Payments)  
+- #Cloudinary & #Multer (Image uploads)  
+- #Nodemailer (Email notifications)  
+- #Svix (Webhook verification)  
+
+
+---
+
+
+
 ## 🏨 Hotel Search & Filtering
 - Search hotels by city  
 - View all hotels with dynamic filtering  
