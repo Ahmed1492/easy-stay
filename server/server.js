@@ -54,6 +54,11 @@ app.get('/', (req, res) => {
   res.send('QuickStay API is running');
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port: http://localhost:${port}/`);
-});
+// Export for Vercel serverless — don't call app.listen() in production
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running on port: http://localhost:${port}/`);
+  });
+}
+
+export default app;
