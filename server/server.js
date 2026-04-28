@@ -11,49 +11,26 @@ import bookingRouter from './src/routes/booking.router.js';
 import { clerkMiddleware } from '@clerk/express';
 import { stripeWebHooks } from './src/controllers/stripeWebHook.js';
 
+connect();
+connectCloudinary();
+
 const app = express();
+const port = process.env.PORT || 3000;
 
-// ── CORS ──────────────────────────────────────────────────────────────────
-const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning'],
-  credentials: false,
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
 
-// ── Stripe webhook (raw body — before express.json) ───────────────────────
-app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebHooks);
-
-// ── Body parser ───────────────────────────────────────────────────────────
 app.use(
   express.json({
-    verify: (req, _res, buf) => {
+    verify: (req, res, buf) => {
       req.rawBody = buf.toString();
     },
   })
 );
 
-// ── DB + Cloudinary (lazy — won't crash the function on cold start) ───────
-let isConnected = false;
-app.use(async (_req, _res, next) => {
-  if (!isConnected) {
-    try {
-      await connect();
-      connectCloudinary();
-      isConnected = true;
-    } catch (err) {
-      console.error('DB/Cloudinary connection error:', err.message);
-    }
-  }
-  next();
-});
+app.use(cors());
 
-// ── Clerk webhook (no clerkMiddleware) ────────────────────────────────────
 app.post('/api/clerk', clerkwebhooks);
 
-// ── All other routes ──────────────────────────────────────────────────────
 app.use(clerkMiddleware());
 
 app.use('/api/user', userRouter);
@@ -61,14 +38,10 @@ app.use('/api/hotels', hotelRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/booking', bookingRouter);
 
-app.get('/', (_req, res) => {
-  res.json({ success: true, message: 'QuickStay API is running' });
+app.get('/', (req, res) => {
+  res.send('Hello World! api works ');
 });
 
-// ── Local dev only ────────────────────────────────────────────────────────
-if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => console.log(`Server: http://localhost:${port}`));
-}
-
-export default app;
+app.listen(port, () => {
+  console.log(`Server running on port : http://localhost:${port}/`);
+});

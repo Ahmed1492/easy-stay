@@ -1,16 +1,16 @@
+import "dotenv/config";
 import mongoose from "mongoose";
 
-export const connect = async () => {
-  // Already connected — skip
-  if (mongoose.connection.readyState >= 1) return;
+export const connectDB = async () => {
+  await mongoose.connect(`${process.env.MONGODB_URL}/easy-stay`).then(() => console.log('DB connected')
+  ).catch(err => console.log(err));
+};
 
+export const connect = async () => {
   try {
-    await mongoose.connect(`${process.env.MONGODB_URL}/easy-stay`, {
-      serverSelectionTimeoutMS: 10000,
-    });
-    console.log('DB Connected');
+    mongoose.connection.on('connected', () => console.log('DB Connected'));
+    await mongoose.connect(`${process.env.MONGODB_URL}/easy-stay`);
   } catch (error) {
-    console.error('DB connection failed:', error.message);
-    throw error;
+    console.log(error.message);
   }
 };
