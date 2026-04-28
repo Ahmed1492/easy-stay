@@ -83,6 +83,7 @@ A modern, full-stack MERN hotel booking platform that provides seamless hotel se
 
 ---
 
+<<<<<<< HEAD
 ## 🎥 Demo
 
 - 🔴 **Live Demo**: [https://easy-stay-rouge.vercel.app/](https://easy-stay-rouge.vercel.app/)
@@ -91,6 +92,47 @@ A modern, full-stack MERN hotel booking platform that provides seamless hotel se
 ---
 
 ## 📁 Project Structure
+=======
+##  Demo
+- 🔴 **Live Demo:** [Live Demo](https://easy-stay-rouge.vercel.app/)  
+- 📼 **Recorded Demo:** [Recorded Demo](https://www.linkedin.com/posts/activity-7420069623099908096-5CM6?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD-hKsAB1QXZ1eSyBx8nGWP48RuYiBX5Bdg)  
+
+---
+
+
+## 🧱 Tech Stack
+
+### 🎨 Frontend
+- #ReactJS  
+- #Clerk (Authentication)  
+- #Axios  
+- #ReactHotToast  
+- #TailwindCSS  
+
+### ⚙️ Backend
+- #NodeJS & #ExpressJS  
+- #MongoDB & #Mongoose  
+- #Clerk (Auth & Webhooks)  
+- #Stripe (Payments)  
+- #Cloudinary & #Multer (Image uploads)  
+- #Nodemailer (Email notifications)  
+- #Svix (Webhook verification)  
+
+
+---
+
+
+
+## 🏨 Hotel Search & Filtering
+- Search hotels by city  
+- View all hotels with dynamic filtering  
+- Get **recommended hotels** based on search criteria  
+- Filter by room type (Single, Double, Luxury, Family)  
+- Filter by price range  
+- Sort results by price or newest listings  
+- Clear all filters instantly  
+
+>>>>>>> f08e1d7f5baba3844f3c47fd2bc834a3781fce77
 
 ```
 easy-stay/
