@@ -11,13 +11,9 @@ import bookingRouter from './src/routes/booking.router.js';
 import { clerkMiddleware } from '@clerk/express';
 import { stripeWebHooks } from './src/controllers/stripeWebHook.js';
 
-connect();
-connectCloudinary();
-
 const app = express();
-const port = process.env.PORT || 3000;
 
-// ── CORS — allow all origins (handles preflight OPTIONS too) ──────────────
+// ── CORS ──────────────────────────────────────────────────────────────────
 const corsOptions = {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -25,24 +21,39 @@ const corsOptions = {
   credentials: false,
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // handle preflight for all routes
+app.options('*', cors(corsOptions));
 
-// ── Stripe webhook (needs raw body, must come before express.json) ────────
-app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
+// ── Stripe webhook (raw body — before express.json) ───────────────────────
+app.post('/api/stripe', express.raw({ type: 'application/json' }), stripeWebHooks);
 
-// ── Body parser (captures raw body for Clerk webhook verification) ────────
+// ── Body parser ───────────────────────────────────────────────────────────
 app.use(
   express.json({
-    verify: (req, res, buf) => {
+    verify: (req, _res, buf) => {
       req.rawBody = buf.toString();
     },
   })
 );
 
+// ── DB + Cloudinary (lazy — won't crash the function on cold start) ───────
+let isConnected = false;
+app.use(async (_req, _res, next) => {
+  if (!isConnected) {
+    try {
+      await connect();
+      connectCloudinary();
+      isConnected = true;
+    } catch (err) {
+      console.error('DB/Cloudinary connection error:', err.message);
+    }
+  }
+  next();
+});
+
 // ── Clerk webhook (no clerkMiddleware) ────────────────────────────────────
 app.post('/api/clerk', clerkwebhooks);
 
-// ── All other routes use clerkMiddleware ──────────────────────────────────
+// ── All other routes ──────────────────────────────────────────────────────
 app.use(clerkMiddleware());
 
 app.use('/api/user', userRouter);
@@ -50,15 +61,14 @@ app.use('/api/hotels', hotelRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/booking', bookingRouter);
 
-app.get('/', (req, res) => {
-  res.send('QuickStay API is running');
+app.get('/', (_req, res) => {
+  res.json({ success: true, message: 'QuickStay API is running' });
 });
 
-// Export for Vercel serverless — don't call app.listen() in production
+// ── Local dev only ────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server running on port: http://localhost:${port}/`);
-  });
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => console.log(`Server: http://localhost:${port}`));
 }
 
 export default app;
