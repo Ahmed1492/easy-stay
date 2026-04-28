@@ -19,6 +19,19 @@ A modern, full-stack MERN hotel booking platform that provides seamless hotel se
 
 ---
 
+
+---
+
+## 🎥 Demo  
+
+[![Live Demo](https://img.shields.io/badge/View%20Live-Vercel-blue?style=for-the-badge&logo=vercel)](https://easy-stay-rouge.vercel.app/)
+
+[![Recorded Demo](https://img.shields.io/badge/Watch%20Demo-LinkedIn-green?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/posts/activity-7420069623099908096-5CM6?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD-hKsAB1QXZ1eSyBx8nGWP48RuYiBX5Bdg)
+
+---
+
+
+
 ## ✨ Features
 
 ### 🔍 Advanced Search & Discovery
@@ -93,11 +106,6 @@ A modern, full-stack MERN hotel booking platform that provides seamless hotel se
 
 ## 📁 Project Structure
 =======
-##  Demo
-- 🔴 **Live Demo:** [Live Demo](https://easy-stay-rouge.vercel.app/)  
-- 📼 **Recorded Demo:** [Recorded Demo](https://www.linkedin.com/posts/activity-7420069623099908096-5CM6?utm_source=share&utm_medium=member_desktop&rcm=ACoAAD-hKsAB1QXZ1eSyBx8nGWP48RuYiBX5Bdg)  
-
----
 
 
 ## 🧱 Tech Stack
