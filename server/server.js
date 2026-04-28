@@ -10,18 +10,27 @@ import connectCloudinary from './src/config/cloudinary.js';
 import bookingRouter from './src/routes/booking.router.js';
 import { clerkMiddleware } from '@clerk/express';
 import { stripeWebHooks } from './src/controllers/stripeWebHook.js';
+
 connect();
 connectCloudinary();
+
 const app = express();
 const port = process.env.PORT || 3000;
 
+// ── CORS — allow all origins (handles preflight OPTIONS too) ──────────────
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning'],
+  credentials: false,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // handle preflight for all routes
 
-
-// API to listen to Stripe Webhooks
+// ── Stripe webhook (needs raw body, must come before express.json) ────────
 app.post('/api/stripe', express.raw({ type: "application/json" }), stripeWebHooks);
 
-
-// Capture raw body for Clerk webhook verification
+// ── Body parser (captures raw body for Clerk webhook verification) ────────
 app.use(
   express.json({
     verify: (req, res, buf) => {
@@ -29,26 +38,22 @@ app.use(
     },
   })
 );
-app.use(cors());
 
-
-
-// Webhook endpoint (POST) : Webhook route → NO clerkMiddleware
+// ── Clerk webhook (no clerkMiddleware) ────────────────────────────────────
 app.post('/api/clerk', clerkwebhooks);
 
-// All other routes → use clerkMiddleware
+// ── All other routes use clerkMiddleware ──────────────────────────────────
 app.use(clerkMiddleware());
 
-// Routes
 app.use('/api/user', userRouter);
 app.use('/api/hotels', hotelRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/booking', bookingRouter);
 
 app.get('/', (req, res) => {
-  res.send('Hello World! api works ');
+  res.send('QuickStay API is running');
 });
 
 app.listen(port, () => {
-  console.log(`Server running on port : http://localhost:${port}/`);
+  console.log(`Server running on port: http://localhost:${port}/`);
 });
