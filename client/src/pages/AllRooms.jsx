@@ -3,10 +3,12 @@ import HetelRooms from "../components/HetelRooms";
 import FiltersHotelRooms from "../components/FiltersHotelRooms";
 import { useSearchParams } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import { RoomCardSkeleton } from "../components/SkeletonLoader";
 
 const AllRooms = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { navigate, backEndUrl, fetchRooms, rooms } = useAppContext();
+  const { rooms } = useAppContext();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedFilters, setSelectedFilters] = useState({
     roomType: [],
@@ -15,29 +17,29 @@ const AllRooms = () => {
 
   const [selectedSort, setSelectedSort] = useState("");
 
-  // store value of selected filters : Room Type , Price Range
-  const handleFilterChange = (isChecked, value, type) => {
-    // console.log("isChecked ", isChecked);
-    // console.log("value ", value);
-    // console.log("type ", type);
-    // console.log("selectedFilters ", selectedFilters);
+  useEffect(() => {
+    // Simulate loading
+    if (rooms && rooms.length > 0) {
+      setTimeout(() => setIsLoading(false), 500);
+    }
+  }, [rooms]);
 
+  // Store value of selected filters: Room Type, Price Range
+  const handleFilterChange = (isChecked, value, type) => {
     setSelectedFilters((prev) => ({
       ...prev,
-      // [type] is how you choose roomType OR priceRange to update
       [type]: isChecked
         ? [...prev[type], value.label]
         : prev[type].filter((item) => item !== value.label),
     }));
   };
 
-  // store value of selected filters :Sort By
+  // Store value of selected filters: Sort By
   const handleSelectedSort = (sort, value) => {
-    // console.log("selectedSort ", selectedSort);
     setSelectedSort(sort.label);
   };
 
-  // check room matches room type
+  // Check room matches room type
   const matchesRoomType = (room) => {
     return (
       selectedFilters.roomType.length === 0 ||
@@ -45,11 +47,10 @@ const AllRooms = () => {
     );
   };
 
-  // check room matches price range
-  const matchesPriceRnage = (room) => {
+  // Check room matches price range
+  const matchesPriceRange = (room) => {
     return (
       selectedFilters.priceRange.length === 0 ||
-      // some => “Is there at least ONE item that matches?”
       selectedFilters.priceRange.some((range) => {
         const [min, max] = range.split(" to ").map(Number);
         return room.pricePerNight >= min && room.pricePerNight <= max;
@@ -57,8 +58,7 @@ const AllRooms = () => {
     );
   };
 
-  // sortRooms is passed to .sort() to order the filtered rooms array
-  // It decides which room comes first based on selectedSort (price or newest)
+  // Sort rooms based on selected option
   const sortRooms = (a, b) => {
     if (selectedSort === "Price Low to High") {
       return a.pricePerNight - b.pricePerNight;
@@ -72,22 +72,21 @@ const AllRooms = () => {
     return 0;
   };
 
-  // filter Destionation
+  // Filter destination
   const filterDestination = (room) => {
     const destination = searchParams.get("destination");
     if (!destination) return true;
     return room.hotel.city.toLowerCase().includes(destination.toLowerCase());
   };
 
-  // filter rooms based on selected option (room type , price range , sort by)
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
+  // Filter rooms based on selected options
   const filteredRooms = useMemo(() => {
     return rooms
       .filter(
         (room) =>
           matchesRoomType(room) &&
-          matchesPriceRnage(room) &&
-          filterDestination(room),
+          matchesPriceRange(room) &&
+          filterDestination(room)
       )
       .sort(sortRooms);
   }, [rooms, selectedFilters, searchParams, selectedSort]);
@@ -97,30 +96,60 @@ const AllRooms = () => {
       roomType: [],
       priceRange: [],
     });
-
     setSelectedSort("");
     setSearchParams({});
   };
 
   return (
-    <div className="mt-20 px-4 md:px-16 lg:px-24 xl:px-32 min-h-[90vh] w-full">
-      <div className="grid grid-1 lg:grid-cols-2   gap-7 w-full">
-        <HetelRooms
-          matchesRoomType={matchesRoomType}
-          matchesPriceRnage={matchesPriceRnage}
-          rooms={filteredRooms}
-        />
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 pt-32 pb-16 px-6 md:px-16 lg:px-24 xl:px-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="inline-block px-4 py-1 bg-white/10 backdrop-blur-md rounded-full text-white text-sm font-semibold mb-4">
+            ✨ Explore Our Collection
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-playfair mb-4">
+            Find Your Perfect Stay
+          </h1>
+          <p className="text-gray-300 text-lg md:text-xl max-w-2xl">
+            Browse through our curated selection of luxury hotels and exclusive accommodations
+          </p>
+        </div>
+      </div>
 
-        <FiltersHotelRooms
-          selectedFilters={selectedFilters}
-          setSelectedFilters={setSelectedFilters}
-          selectedSort={selectedSort}
-          setSelectedSort={setSelectedSort}
-          handleFilterChange={handleFilterChange}
-          handleSelectedSort={handleSelectedSort}
-          clearAllFilters={clearAllFilters}
-          className="order-1 lg:order-1"
-        />
+      {/* Main Content */}
+      <div className="px-6 md:px-16 lg:px-24 xl:px-32 -mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+          {/* Rooms List - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            {isLoading ? (
+              <div className="space-y-6 mt-20">
+                <div className="skeleton skeleton-title w-1/3"></div>
+                <div className="skeleton skeleton-text w-2/3"></div>
+                {Array(3)
+                  .fill(0)
+                  .map((_, index) => (
+                    <RoomCardSkeleton key={index} />
+                  ))}
+              </div>
+            ) : (
+              <HetelRooms rooms={filteredRooms} />
+            )}
+          </div>
+
+          {/* Filters Sidebar - Takes 1 column */}
+          <div className="lg:col-span-1">
+            <FiltersHotelRooms
+              selectedFilters={selectedFilters}
+              setSelectedFilters={setSelectedFilters}
+              selectedSort={selectedSort}
+              setSelectedSort={setSelectedSort}
+              handleFilterChange={handleFilterChange}
+              handleSelectedSort={handleSelectedSort}
+              clearAllFilters={clearAllFilters}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

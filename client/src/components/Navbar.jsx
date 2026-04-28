@@ -33,6 +33,26 @@ const Navbar = () => {
     </svg>
   );
 
+  const ProfileIcon = () => (
+    <svg
+      className="w-4 h-4 text-gray-700"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a8.949 8.949 0 0 0 4.951-1.488A3.987 3.987 0 0 0 13 16h-2a3.987 3.987 0 0 0-3.951 3.512A8.948 8.948 0 0 0 12 21Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+      />
+    </svg>
+  );
+
   const path = useLocation().pathname;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -128,17 +148,29 @@ const Navbar = () => {
 
       {/* Desktop Right */}
       <div className="hidden md:flex items-center gap-4">
-        <img
-          src={assets.searchIcon}
-          alt="searchIcon"
-          className={`${
-            isScrolled && "invert"
-          } h-7 transition-all duration-500`}
-        />
+        <button
+          onClick={() => navigate("/search")}
+          className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/10 transition-colors"
+          aria-label="Search"
+        >
+          <svg
+            className={`w-5 h-5 transition-all duration-500 ${isScrolled ? "text-gray-700" : "text-white"}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
 
         {user ? (
           <UserButton>
             <UserButton.MenuItems>
+              <UserButton.Action
+                label="Profile"
+                labelIcon={<ProfileIcon />}
+                onClick={() => navigate("profile")}
+              />
               <UserButton.Action
                 label="My Bookings"
                 labelIcon={<BookIcon />}
@@ -173,6 +205,11 @@ const Navbar = () => {
         {user && (
           <UserButton>
             <UserButton.MenuItems>
+              <UserButton.Action
+                label="Profile"
+                labelIcon={<ProfileIcon />}
+                onClick={() => navigate("profile")}
+              />
               <UserButton.Action
                 label="My Bookings"
                 labelIcon={<BookIcon />}

@@ -7,29 +7,42 @@ const HotelForm = () => {
   const { navigate, getToken, setSearchCities, backEndUrl, searchCities } =
     useAppContext();
   const [destination, setDestination] = useState("");
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState("1");
+  
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    navigate(`/rooms?destination=${destination}`);
+    // Build search params
+    const params = new URLSearchParams();
+    if (destination) params.append("destination", destination);
+    if (checkIn) params.append("checkIn", checkIn);
+    if (checkOut) params.append("checkOut", checkOut);
+    if (guests) params.append("guests", guests);
+
+    navigate(`/search?${params.toString()}`);
 
     // add new search cities for specific user to database
-    const myResponse = await axios.post(
-      `${backEndUrl}/api/user/store-recent-search`,
-      {
-        recentSearchedCity: destination,
-      },
-      {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-          Authorization: `Bearer ${await getToken()}`,
+    if (destination) {
+      const myResponse = await axios.post(
+        `${backEndUrl}/api/user/store-recent-search`,
+        {
+          recentSearchedCity: destination,
         },
-      },
-    );
-    // console.log(myResponse.data);
-    setSearchCities((prev) => {
-      const safePrev = Array.isArray(prev) ? prev : [];
-      return [...safePrev, destination].slice(-3);
-    });
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        },
+      );
+      // console.log(myResponse.data);
+      setSearchCities((prev) => {
+        const safePrev = Array.isArray(prev) ? prev : [];
+        return [...safePrev, destination].slice(-3);
+      });
+    }
   };
 
   return (
@@ -67,6 +80,8 @@ const HotelForm = () => {
         <input
           id="checkIn"
           type="date"
+          value={checkIn}
+          onChange={(e) => setCheckIn(e.target.value)}
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
         />
       </div>
@@ -80,6 +95,8 @@ const HotelForm = () => {
         <input
           id="checkOut"
           type="date"
+          value={checkOut}
+          onChange={(e) => setCheckOut(e.target.value)}
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
         />
       </div>
@@ -91,8 +108,10 @@ const HotelForm = () => {
           max={4}
           id="guests"
           type="number"
+          value={guests}
+          onChange={(e) => setGuests(e.target.value)}
           className=" rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none  max-w-16"
-          placeholder="0"
+          placeholder="1"
         />
       </div>
 

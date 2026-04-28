@@ -1,25 +1,32 @@
 import React, { useEffect, useState } from "react";
 import HotelCard from "./HotelCard";
-import { roomsDummyData } from "../assets/assets";
-import { useNavigate } from "react-router-dom";
+import RoomQuickViewModal from "./RoomQuickViewModal";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import axios from "axios";
+
 const RecommendedHotels = () => {
   const [recommended, setrecommended] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { navigate, backEndUrl, rooms, searchCities, getToken } =
     useAppContext();
 
-  const recommendedHotels = {
-    title: "Recommended Hotels",
-    desc: "Ladipisicing consectetur adipisicing elit. Nesciunt repellendus dolorum nam! Nobis, corporis.adipisicing adipisicing",
-    style: "items-center justify-center text-center",
-  };
-
   const filterRooms = (rooms, arr) => {
     return rooms.filter((room) => arr.includes(room.hotel.city)).slice(0, 4);
   };
+
+  const handleQuickView = (room) => {
+    setSelectedRoom(room);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedRoom(null), 300);
+  };
+
   const getRecentSearchCities = async () => {
     try {
       const myResponse = await axios.get(
@@ -31,8 +38,6 @@ const RecommendedHotels = () => {
           },
         },
       );
-      console.log(myResponse.data);
-
       setrecommended(myResponse?.data?.recentSearchedCities || []);
     } catch (error) {
       toast.error(error.message);
@@ -41,33 +46,50 @@ const RecommendedHotels = () => {
 
   useEffect(() => {
     if (!rooms?.length || !recommended?.length) return;
-
     filterRooms(rooms, recommended);
-    // console.log("filtered rooms:", filtered);
   }, [rooms, recommended]);
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     getRecentSearchCities();
-    // console.log(rooms);
   }, [searchCities]);
 
   if (filterRooms(rooms, recommended).length === 0) return null;
+
   return (
-    <>
-      <div
-        className={`flex flex-col gap-4  ${recommendedHotels?.style} mt-28 `}
-      >
-        <h2 className="text-5xl  font-playfair">{recommendedHotels?.title}</h2>
-        <p className="max-w-2xl text-gray-700 ">{recommendedHotels?.desc}</p>
-      </div>
-      <div className="">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-7 mt-14">
-          {filterRooms(rooms, recommended).map((room, index) => (
-            <HotelCard key={room._id} room={room} index={index} />
-          ))}
+    <div className="mt-28 animate-fade-in">
+      {/* Section Header */}
+      <div className="flex flex-col items-center justify-center text-center gap-4 mb-12">
+        <div className="inline-block px-4 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+          Based on Your Searches
         </div>
+        <h2 className="text-4xl md:text-5xl font-bold font-playfair bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          Recommended Hotels
+        </h2>
+        <p className="max-w-2xl text-gray-600 text-lg">
+          Handpicked accommodations tailored to your preferences and recent searches
+        </p>
       </div>
-    </>
+
+      {/* Hotels Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {filterRooms(rooms, recommended).map((room, index) => (
+          <div
+            key={room._id}
+            className="animate-slide-up"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <HotelCard room={room} index={index} onQuickView={handleQuickView} />
+          </div>
+        ))}
+      </div>
+
+      {/* Quick View Modal */}
+      <RoomQuickViewModal
+        room={selectedRoom}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
+    </div>
   );
 };
 
