@@ -39,7 +39,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
-  const [userStats, setUserStats] = useState({ totalBookings: 0, upcomingBookings: 0, completedBookings: 0, totalSpent: 0 });
+  const [userStats, setUserStats] = useState({ totalBookings: 0, pendingBookings: 0, completedBookings: 0, totalSpent: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
 
   useEffect(() => { if (user) fetchUserData(); }, [user]);
@@ -86,9 +86,9 @@ const Profile = () => {
   ];
 
   const stats = [
-    { label: "Total Bookings",  value: userStats.totalBookings,                          icon: Ic.hotel  },
-    { label: "Upcoming Trips",  value: userStats.upcomingBookings,                       icon: Ic.plane  },
-    { label: "Completed",       value: userStats.completedBookings,                      icon: Ic.check  },
+    { label: "Total Bookings",  value: userStats.totalBookings,                           icon: Ic.hotel  },
+    { label: "Pending",         value: userStats.pendingBookings,                          icon: Ic.plane  },
+    { label: "Completed",       value: userStats.completedBookings,                        icon: Ic.check  },
     { label: "Total Spent",     value: `${currency}${userStats.totalSpent.toLocaleString()}`, icon: Ic.money  },
   ];
 

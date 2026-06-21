@@ -1,9 +1,11 @@
 import axios from "axios";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 
 const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIsAvailabe, id, pricePerNight }) => {
   const { backEndUrl, getToken, navigate, user } = useAppContext();
+  const [loading, setLoading] = useState(false);
 
   const nights =
     bookingData.checkInDate && bookingData.checkOutDate
@@ -23,6 +25,7 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
       return toast.error("Please fill in all fields");
     }
     try {
+      setLoading(true);
       const res = await axios.post(
         `${backEndUrl}/api/booking/check-availability`,
         {
@@ -42,11 +45,15 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
       }
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleBooking = async () => {
+  // Pay At Hotel — booking confirmed immediately, no Stripe
+  const handlePayAtHotel = async () => {
     try {
+      setLoading(true);
       const res = await axios.post(
         `${backEndUrl}/api/booking/create`,
         {
@@ -60,7 +67,7 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
         { headers: { "ngrok-skip-browser-warning": "true", Authorization: `Bearer ${await getToken()}` } }
       );
       if (res.data.success) {
-        toast.success("Room booked successfully!");
+        toast.success("Booking confirmed!");
         navigate("/my-bookings");
         setIsAvailabe(false);
       } else {
@@ -68,18 +75,59 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
       }
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) return toast.error("Please log in first");
-    if (!isAvailable) return handleCheckAvailability();
-    return handleBooking();
+  // Pay with Stripe — create booking as pending, then redirect to Stripe checkout
+  const handlePayWithStripe = async () => {
+    try {
+      setLoading(true);
+
+      // Step 1: create the booking (status: pending, isPaid: true signals Stripe path)
+      const bookingRes = await axios.post(
+        `${backEndUrl}/api/booking/create`,
+        {
+          checkInDate: bookingData.checkInDate,
+          checkOutDate: bookingData.checkOutDate,
+          room: id,
+          guests: bookingData.guests,
+          paymentMethod: "Stripe",
+          isPaid: true, // tells controller to keep status "pending" until webhook confirms
+        },
+        { headers: { "ngrok-skip-browser-warning": "true", Authorization: `Bearer ${await getToken()}` } }
+      );
+
+      if (!bookingRes.data.success) {
+        toast.error(bookingRes.data.message || "Booking failed");
+        return;
+      }
+
+      const bookingId = bookingRes.data.booking._id;
+
+      // Step 2: create Stripe checkout session
+      const stripeRes = await axios.post(
+        `${backEndUrl}/api/booking/stripe-payment`,
+        { bookingId },
+        { headers: { "ngrok-skip-browser-warning": "true", Authorization: `Bearer ${await getToken()}` } }
+      );
+
+      if (stripeRes.data.success) {
+        // Redirect to Stripe — webhook will confirm the booking after payment
+        window.location.href = stripeRes.data.url;
+      } else {
+        toast.error(stripeRes.data.message || "Could not initiate payment");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
 
       {/* Price header */}
       <div className="px-6 pt-6 pb-4 border-b border-gray-100">
@@ -170,37 +218,75 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
           <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
-          <p className="text-xs font-semibold text-green-800">Room is available — confirm your booking!</p>
+          <p className="text-xs font-semibold text-green-800">Room is available — choose how to pay!</p>
         </div>
       )}
 
-      {/* CTA button */}
-      <div className="px-6 pb-5">
-        <button
-          type="submit"
-          className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-            isAvailable
-              ? "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-200"
-              : "bg-gray-900 hover:bg-gray-700 text-white"
-          }`}
-        >
-          {isAvailable ? (
-            <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+      {/* CTA buttons */}
+      <div className="px-6 pb-5 space-y-2">
+        {!isAvailable ? (
+          // Step 1: Check availability
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => {
+              if (!user) return toast.error("Please log in first");
+              handleCheckAvailability();
+            }}
+            className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-700 text-white disabled:opacity-60"
+          >
+            {loading ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
-              Confirm Booking
-            </>
-          ) : (
-            <>
+            ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Check Availability
-            </>
-          )}
-        </button>
-        <p className="text-center text-xs text-gray-400 mt-2">You won't be charged yet</p>
+            )}
+            Check Availability
+          </button>
+        ) : (
+          // Step 2: Choose payment method
+          <>
+            {/* Pay with Stripe */}
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handlePayWithStripe}
+              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 disabled:opacity-60"
+            >
+              {loading ? (
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              )}
+              Pay Now with Stripe
+            </button>
+
+            {/* Pay At Hotel */}
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handlePayAtHotel}
+              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white disabled:opacity-60"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              Pay At Hotel
+            </button>
+          </>
+        )}
+        <p className="text-center text-xs text-gray-400">
+          {isAvailable ? "Stripe payment is secure & encrypted" : "You won't be charged yet"}
+        </p>
       </div>
 
       {/* Price breakdown */}
@@ -221,7 +307,7 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
         </div>
       )}
 
-    </form>
+    </div>
   );
 };
 

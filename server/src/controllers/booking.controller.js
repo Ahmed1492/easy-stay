@@ -43,17 +43,18 @@ export const checkAvailabilityApi = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
 
-    const { room, checkInDate, checkOutDate, guests, isPaid } = req.body;
+    const { room, checkInDate, checkOutDate, guests, isPaid, paymentMethod } = req.body;
     const user = req.user._id;
-    const isAvilable = checkAvailability({ room, checkInDate, checkOutDate });
+
+    // must await — checkAvailability is async
+    const isAvilable = await checkAvailability({ room, checkInDate, checkOutDate });
     if (!isAvilable) {
       return res.json({ success: false, message: 'room is not availble' });
     }
 
     // get total price
     const roomData = await Room.findById(room).populate("hotel");
-    let totalPrice = await roomData.pricePerNight;
-
+    let totalPrice = roomData.pricePerNight;
 
     // calculate total price per night
     const checkIn = new Date(checkInDate);
@@ -62,7 +63,13 @@ export const createBooking = async (req, res) => {
     const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
     totalPrice *= nights;
 
-    const booking = await Booking.create({ user, room, hotel: roomData.hotel._id, checkInDate, checkOutDate, guests: +guests, totalPrice, isPaid });
+    // Both start as pending:
+    // - Pay At Hotel → pending (hotel confirms on arrival)
+    // - Stripe → pending until payment verified
+    const status = "pending";
+    const method = paymentMethod || (isPaid ? "Stripe" : "Pay At Hotel");
+
+    const booking = await Booking.create({ user, room, hotel: roomData.hotel._id, checkInDate, checkOutDate, guests: +guests, totalPrice, isPaid, status, paymentMethod: method });
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
@@ -152,6 +159,51 @@ export const getHotelBookins = async (req, res) => {
 };
 
 
+// verify stripe payment and confirm booking (used on success redirect — no webhook needed)
+export const verifyStripePayment = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    if (!bookingId) return res.json({ success: false, message: "bookingId required" });
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) return res.json({ success: false, message: "Booking not found" });
+
+    // Already confirmed — nothing to do
+    if (booking.status === "confirmed" && booking.isPaid) {
+      return res.json({ success: true, booking });
+    }
+
+    // Ask Stripe directly for the session status
+    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+    const sessions = await stripeInstance.checkout.sessions.list({
+      limit: 10,
+    });
+
+    // Find the session whose metadata.bookingId matches
+    const session = sessions.data.find(
+      (s) => s.metadata?.bookingId === bookingId && s.payment_status === "paid"
+    );
+
+    if (!session) {
+      console.log("No paid Stripe session found for bookingId:", bookingId);
+      return res.json({ success: false, message: "Payment not completed" });
+    }
+
+    // Payment confirmed — update booking
+    const updated = await Booking.findByIdAndUpdate(
+      bookingId,
+      { isPaid: true, paymentMethod: "Stripe", status: "confirmed" },
+      { new: true }
+    );
+
+    console.log("✅ Payment verified and booking confirmed:", updated._id);
+    return res.json({ success: true, booking: updated });
+  } catch (error) {
+    console.error("verifyStripePayment error:", error.message);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 // add payment methode
 
 export const striptePayment = async (req, res) => {
@@ -195,7 +247,7 @@ export const striptePayment = async (req, res) => {
     const session = await stripeInstance.checkout.sessions.create({
       line_items,
       mode: "payment",
-      success_url: `${origin}/loader/my-bookings`,
+      success_url: `${origin}/loader/my-bookings?bookingId=${bookingId}`,
       cancel_url: `${origin}/my-bookings`,
       metadata: { bookingId },
     });
