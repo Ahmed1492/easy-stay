@@ -1,72 +1,180 @@
+import { useRef, useState } from "react";
+import { BadgeCheck, ChevronLeft, ChevronRight, MapPin, Plane, Quote, Star } from "lucide-react";
 import { testimonials } from "../assets/assets";
-import StarRating from "./StarRating.jsx";
+
+const AVATAR_COLORS = [
+  "from-amber-400 to-orange-500",
+  "from-sky-400 to-blue-600",
+  "from-emerald-400 to-teal-600",
+  "from-pink-400 to-rose-600",
+  "from-violet-400 to-purple-600",
+];
+
+const initials = (name) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+const Stars = ({ rating }) => (
+  <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+    {Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-4 h-4 ${i < rating ? "fill-amber-400 text-amber-400" : "text-gray-200 fill-gray-200"}`}
+      />
+    ))}
+  </div>
+);
 
 const Testimonials = () => {
+  const trackRef = useRef(null);
+  const drag = useRef({ active: false, moved: false, startX: 0, startScroll: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const onPointerDown = (e) => {
+    // Touch already scrolls natively; only mouse/pen need manual dragging
+    if (e.pointerType === "touch") return;
+    drag.current = {
+      active: true,
+      moved: false,
+      startX: e.clientX,
+      startScroll: trackRef.current.scrollLeft,
+    };
+    setIsDragging(true);
+  };
+
+  const onPointerMove = (e) => {
+    const d = drag.current;
+    if (!d.active) return;
+    const delta = e.clientX - d.startX;
+    if (Math.abs(delta) > 4) d.moved = true;
+    trackRef.current.scrollLeft = d.startScroll - delta;
+  };
+
+  const endDrag = () => {
+    drag.current.active = false;
+    setIsDragging(false);
+  };
+
+  const scrollByCard = (direction) => {
+    const track = trackRef.current;
+    const card = track.firstElementChild;
+    const step = card ? card.offsetWidth + 24 : track.clientWidth;
+    track.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
+  const average = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
+
   return (
-    <div className="pt-20 pb-10 animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
-        {testimonials.map((testimonial, index) => (
-          <div
-            key={testimonial.id}
-            className="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            {/* Decorative Element */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
-            
-            {/* Quote Icon */}
-            <div className="absolute top-6 right-6 text-blue-100 group-hover:text-blue-200 transition-colors">
-              <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-              </svg>
-            </div>
-
-            {/* Content */}
-            <div className="relative z-10">
-              {/* User Info */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="relative">
-                  <img
-                    className="w-16 h-16 rounded-full object-cover ring-4 ring-blue-50 group-hover:ring-blue-100 transition-all"
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                  />
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-white"></div>
-                </div>
-                <div>
-                  <p className="font-playfair text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-gray-500 text-sm flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                    </svg>
-                    {testimonial.address}
-                  </p>
-                </div>
-              </div>
-
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-4">
-                <StarRating />
-                <span className="text-sm font-semibold text-gray-600">(5.0)</span>
-              </div>
-
-              {/* Review Text */}
-              <p className="text-gray-600 leading-relaxed">
-                "{testimonial.review}"
-              </p>
-
-              {/* Verified Badge */}
-              <div className="mt-6 inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-semibold">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                Verified Guest
-              </div>
-            </div>
+    <div className="pt-12 pb-10">
+      {/* Summary bar */}
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-4 mb-10 p-5 rounded-2xl bg-white border border-gray-100 shadow-sm">
+        <div className="flex items-center gap-4">
+          <span className="text-5xl font-bold font-playfair text-gray-900">{average.toFixed(1)}</span>
+          <div>
+            <Stars rating={Math.round(average)} />
+            <p className="text-sm text-gray-500 mt-1">Average guest rating</p>
           </div>
+        </div>
+        <div className="hidden sm:block w-px self-stretch bg-gray-100" />
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <BadgeCheck className="w-5 h-5 text-emerald-500" />
+          <span>
+            <strong className="text-gray-900">{testimonials.length}</strong> verified guest reviews
+          </span>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-gray-500">Drag or swipe to read more</p>
+          <div className="flex items-center gap-2">
+            {[
+              { dir: -1, icon: ChevronLeft, label: "Previous reviews" },
+              { dir: 1, icon: ChevronRight, label: "Next reviews" },
+            ].map(({ dir, icon: Icon, label }) => (
+              <button
+                key={dir}
+                onClick={() => scrollByCard(dir)}
+                aria-label={label}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-700 shadow-sm hover:bg-gray-900 hover:text-white hover:border-gray-900 transition-colors cursor-pointer"
+              >
+                <Icon className="w-5 h-5" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div
+          ref={trackRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerLeave={endDrag}
+          onPointerCancel={endDrag}
+          onDragStart={(e) => e.preventDefault()}
+          className={`flex gap-6 overflow-x-auto pb-6 -mx-1 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            isDragging ? "cursor-grabbing" : "cursor-grab snap-x snap-mandatory scroll-smooth"
+          }`}
+        >
+        {testimonials.map((testimonial, index) => (
+          <figure
+            key={testimonial.id}
+            className="group relative flex flex-col shrink-0 snap-start w-[85%] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white p-7 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden animate-slide-up"
+            style={{ animationDelay: `${index * 80}ms`, animationFillMode: "both" }}
+          >
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-500 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+
+            <div className="flex items-start justify-between mb-5">
+              <Stars rating={testimonial.rating} />
+              <Quote className="w-9 h-9 text-amber-200 fill-amber-100 group-hover:text-amber-300 transition-colors" />
+            </div>
+
+            <blockquote className="flex-1 text-gray-600 leading-relaxed mb-6">
+              “{testimonial.review}”
+            </blockquote>
+
+            {testimonial.stay && (
+              <p className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-5">
+                <Plane className="w-3.5 h-3.5" />
+                {testimonial.stay}
+              </p>
+            )}
+
+            <figcaption className="flex items-center gap-3 pt-5 border-t border-gray-100">
+              {testimonial.image ? (
+                <img
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100"
+                  src={testimonial.image}
+                  alt=""
+                  loading="lazy"
+                />
+              ) : (
+                <span
+                  className={`flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br ${
+                    AVATAR_COLORS[index % AVATAR_COLORS.length]
+                  } text-white text-sm font-bold`}
+                >
+                  {initials(testimonial.name)}
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-1.5 font-bold text-gray-900 truncate">
+                  {testimonial.name}
+                  <BadgeCheck className="w-4 h-4 text-emerald-500 shrink-0" aria-label="Verified guest" />
+                </p>
+                <p className="flex items-center gap-1 text-gray-500 text-xs">
+                  <MapPin className="w-3 h-3" />
+                  {testimonial.address}
+                </p>
+              </div>
+            </figcaption>
+          </figure>
         ))}
+        </div>
       </div>
     </div>
   );

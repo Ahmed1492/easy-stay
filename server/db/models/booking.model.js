@@ -11,6 +11,8 @@ const bookingSchema = new mongoose.Schema({
   status: { type: String, required: true, enum: ["pending", "confirmed", "cancelled"], default: 'pending' },
   paymentMethod: { type: String, required: true, default: 'Pay At Hotel' },
   isPaid: { type: Boolean, default: false },
+  // unpaid Stripe checkouts only block the room until this time
+  holdExpiresAt: { type: Date },
 
 
 }, { timestamps: true });

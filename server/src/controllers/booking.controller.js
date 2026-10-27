@@ -3,24 +3,48 @@ import Hotel from "../../db/models/hotel.model.js";
 import Room from "../../db/models/room.model.js";
 import transporter from "../config/nodemailer.js";
 import stripe from 'stripe';
+// How long an unpaid Stripe checkout keeps the dates reserved.
+// Stripe sessions are created to expire a few minutes before this.
+const STRIPE_HOLD_MINUTES = 35;
+const STRIPE_SESSION_MINUTES = 31; // Stripe requires at least 30
+
+const holdUntil = () => new Date(Date.now() + STRIPE_HOLD_MINUTES * 60 * 1000);
+
+// Bookings whose stay overlaps [checkIn, checkOut). A guest can check in on
+// the day the previous guest checks out.
+const overlapping = (room, checkInDate, checkOutDate) => ({
+  room,
+  checkInDate: { $lt: new Date(checkOutDate) },
+  checkOutDate: { $gt: new Date(checkInDate) },
+});
+
 // function to check room Availability
-const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
-  try {
-    const checkIn = new Date(checkInDate).toISOString().split('T')[0];
-    const checkOut = new Date(checkOutDate).toISOString().split('T')[0];
-    const bookings = await Booking.find({
-      room,
-      checkInDate: { $lte: checkOut },
-      checkOutDate: { $gte: checkIn }
-    });
+// `userId` ignores that user's own unfinished Stripe attempts (they get replaced on retry).
+const checkAvailability = async ({ checkInDate, checkOutDate, room, excludeBookingId, userId }) => {
+  const now = new Date();
+  const legacyCutoff = new Date(now.getTime() - STRIPE_HOLD_MINUTES * 60 * 1000);
 
-    const isAvailable = bookings.length === 0;
-    return isAvailable;
-  } catch (error) {
-    console.log(error);
-    return res.json({ success: false, err: error.message, stack: error.stack });
+  const query = {
+    ...overlapping(room, checkInDate, checkOutDate),
+    status: { $ne: "cancelled" },
+    // abandoned Stripe checkouts stop blocking once their hold has expired
+    $nor: [
+      {
+        paymentMethod: "Stripe",
+        status: "pending",
+        $or: [
+          { holdExpiresAt: { $lt: now } },
+          // bookings created before holdExpiresAt existed
+          { holdExpiresAt: { $exists: false }, createdAt: { $lt: legacyCutoff } },
+        ],
+      },
+      ...(userId ? [{ user: userId, paymentMethod: "Stripe", status: "pending" }] : []),
+    ],
+  };
+  if (excludeBookingId) query._id = { $ne: excludeBookingId };
 
-  }
+  const blocking = await Booking.countDocuments(query);
+  return blocking === 0;
 };
 
 //  check room Availability
@@ -30,7 +54,7 @@ export const checkAvailabilityApi = async (req, res) => {
     const { checkInDate, checkOutDate, room } = req.body;
     const checkIn = new Date(checkInDate).toISOString().split('T')[0];
     const checkOut = new Date(checkOutDate).toISOString().split('T')[0];
-    const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
+    const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room, userId: req.user?._id });
     return res.json({ success: true, isAvailable, checkIn, checkOut });
   } catch (error) {
     console.log(error);
@@ -46,10 +70,32 @@ export const createBooking = async (req, res) => {
     const { room, checkInDate, checkOutDate, guests, isPaid, paymentMethod } = req.body;
     const user = req.user._id;
 
+    if (!room || !checkInDate || !checkOutDate) {
+      return res.json({ success: false, message: "Please choose check-in and check-out dates" });
+    }
+    if (new Date(checkOutDate) <= new Date(checkInDate)) {
+      return res.json({ success: false, message: "Check-out must be after check-in" });
+    }
+
+    // Retrying after leaving Stripe without paying: replace the earlier attempt
+    // instead of letting it block this user's new booking
+    await Booking.updateMany(
+      {
+        ...overlapping(room, checkInDate, checkOutDate),
+        user,
+        paymentMethod: "Stripe",
+        status: "pending",
+      },
+      { status: "cancelled" }
+    );
+
     // must await — checkAvailability is async
     const isAvilable = await checkAvailability({ room, checkInDate, checkOutDate });
     if (!isAvilable) {
-      return res.json({ success: false, message: 'room is not availble' });
+      return res.json({
+        success: false,
+        message: "Sorry, this room is already booked for some of these dates. Please choose different dates.",
+      });
     }
 
     // get total price
@@ -69,7 +115,20 @@ export const createBooking = async (req, res) => {
     const status = "pending";
     const method = paymentMethod || (isPaid ? "Stripe" : "Pay At Hotel");
 
-    const booking = await Booking.create({ user, room, hotel: roomData.hotel._id, checkInDate, checkOutDate, guests: +guests, totalPrice, isPaid, status, paymentMethod: method });
+    // A booking is only paid once Stripe confirms it (webhook / verifyStripePayment)
+    const booking = await Booking.create({
+      user,
+      room,
+      hotel: roomData.hotel._id,
+      checkInDate,
+      checkOutDate,
+      guests: +guests,
+      totalPrice,
+      isPaid: false,
+      status,
+      paymentMethod: method,
+      ...(method === "Stripe" && { holdExpiresAt: holdUntil() }),
+    });
 
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
@@ -84,7 +143,7 @@ export const createBooking = async (req, res) => {
       <li> <strong> Hotel Name :</strong>  ${roomData.hotel.name}</li>
       <li> <strong> Location :</strong>  ${roomData.hotel.address}</li>
       <li> <strong> Date :</strong>  ${booking.checkInDate.toDateString()}</li>
-      <li> <strong> Amount :</strong>  $ ${booking.totalPrice} / night</li>
+      <li> <strong> Total :</strong>  $ ${booking.totalPrice} for ${nights} night${nights > 1 ? 's' : ''}</li>
       </ul>
       <p> We look forward to welcoming you!</p>
       <p> If you need to make any changes feel free to contact us.</p>
@@ -93,7 +152,12 @@ export const createBooking = async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    // The booking is already saved — a mail problem must not make it look failed
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (mailError) {
+      console.error("Booking email not sent:", mailError.message);
+    }
 
     return res.json({ success: true, message: "Room Booked Successfully.", booking });
   } catch (error) {
@@ -215,6 +279,30 @@ export const striptePayment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Booking not found" });
     }
 
+    if (booking.isPaid || booking.status === "confirmed") {
+      return res.json({ success: false, message: "This booking is already paid" });
+    }
+    if (booking.status === "cancelled") {
+      return res.json({ success: false, message: "This booking was cancelled. Please book again." });
+    }
+
+    // The hold may have expired and someone else may have booked these dates since
+    const stillAvailable = await checkAvailability({
+      room: booking.room,
+      checkInDate: booking.checkInDate,
+      checkOutDate: booking.checkOutDate,
+      excludeBookingId: booking._id,
+    });
+    if (!stillAvailable) {
+      await Booking.findByIdAndUpdate(booking._id, { status: "cancelled" });
+      return res.json({
+        success: false,
+        message: "Sorry, these dates were booked by another guest. Please choose different dates.",
+      });
+    }
+    booking.holdExpiresAt = holdUntil();
+    await booking.save();
+
     const roomDate = await Room.findById(booking.room).populate('hotel');
     if (!roomDate || !roomDate.hotel) {
       return res.status(404).json({ success: false, message: "Room or Hotel not found" });
@@ -250,6 +338,7 @@ export const striptePayment = async (req, res) => {
       success_url: `${origin}/loader/my-bookings?bookingId=${bookingId}`,
       cancel_url: `${origin}/my-bookings`,
       metadata: { bookingId },
+      expires_at: Math.floor(Date.now() / 1000) + STRIPE_SESSION_MINUTES * 60,
     });
     console.log('bookingId 3', bookingId);
 

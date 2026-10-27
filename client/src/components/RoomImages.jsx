@@ -1,160 +1,265 @@
-import React, { useState } from "react";
-import { assets } from "../assets/assets";
-import StarRating from "./StarRating";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { ChevronLeft, ChevronRight, Grid2x2, Heart, Share, Star, X } from "lucide-react";
+import { optimizeImage, preloadImages } from "../utils/image";
 
 const RoomImages = ({ room }) => {
-  const [mainImageIndex, setMainImageIndex] = useState(0);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const images = room?.images || [];
+  const [mainIndex, setMainIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const isOpen = lightboxIndex !== null;
+
+  const close = () => setLightboxIndex(null);
+  const prev = () => setLightboxIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  const next = () => setLightboxIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+  const showPrevMain = () => setMainIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+  const showNextMain = () => setMainIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+
+  // Esc closes, arrows navigate; page scroll is locked while the lightbox is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = images.length;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowLeft") setLightboxIndex((i) => (i === 0 ? count - 1 : i - 1));
+      if (e.key === "ArrowRight") setLightboxIndex((i) => (i === count - 1 ? 0 : i + 1));
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, images.length]);
+
+  // Warm the cache so swapping the main photo is instant
+  useEffect(() => {
+    preloadImages(images.map((img) => optimizeImage(img, 1400)));
+  }, [images]);
+
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: room?.hotel?.name, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied");
+      }
+    } catch {
+      // user cancelled the share sheet
+    }
+  };
+
+  // Up to 4 thumbnails next to the main photo; the last one shows "+N" when there are more
+  const thumbs = images.slice(0, 4);
+  const hiddenCount = images.length - thumbs.length;
+  const thumbSpan = (i) => {
+    if (thumbs.length === 2) return "md:col-span-2";
+    if (thumbs.length === 3 && i === 2) return "md:col-span-2";
+    return "";
+  };
 
   return (
-    <div className="animate-fade-in">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-3 mb-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-playfair text-gray-900">
-              {room?.hotel?.name}
-            </h1>
-            <span className="px-4 py-1.5 bg-orange-500 text-white rounded-full text-sm font-bold shadow-lg animate-pulse">
-              🔥 20% OFF
+    <div>
+      {/* Title row */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-6">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 leading-tight">
+            {room?.roomType} at {room?.hotel?.name}
+          </h1>
+          <p className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-sm text-gray-900">
+            <Star className="w-3.5 h-3.5 fill-gray-900" />
+            <span className="font-semibold">4.5</span>
+            <span>·</span>
+            <span className="underline underline-offset-2 font-medium">200+ reviews</span>
+            <span>·</span>
+            <span className="underline underline-offset-2 font-medium">
+              {[room?.hotel?.city, room?.hotel?.address].filter(Boolean).join(", ")}
             </span>
-          </div>
-          <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold">
-            {room?.roomType}
-          </span>
+          </p>
         </div>
-      </div>
 
-      {/* Rating and Location */}
-      <div className="space-y-3 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-yellow-50 px-3 py-2 rounded-lg">
-            <StarRating />
-          </div>
-          <span className="font-semibold text-gray-700">4.5 (200+ reviews)</span>
-        </div>
-        <div className="flex items-center gap-2 text-gray-600">
-          <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-          </svg>
-          <p className="text-lg">{room?.hotel?.address}</p>
-        </div>
-      </div>
-
-      {/* Image Gallery */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[29rem]">
-        {/* Main Image */}
-        <div className="relative group overflow-hidden rounded-2xl shadow-xl">
-          <img
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-pointer"
-            src={room?.images?.[mainImageIndex]}
-            alt="Main room view"
-            onClick={() => setIsImageModalOpen(true)}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
-          {/* View All Photos Button */}
+        <div className="flex items-center gap-1 -ml-3 md:ml-0 shrink-0">
           <button
-            onClick={() => setIsImageModalOpen(true)}
-            className="absolute bottom-4 right-4 bg-white text-gray-800 px-4 py-2 rounded-full font-semibold shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 flex items-center gap-2"
+            onClick={share}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            View All Photos
+            <Share className="w-4 h-4" />
+            <span className="underline underline-offset-2">Share</span>
           </button>
-
-          {/* Image Counter */}
-          <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white px-3 py-1 rounded-full text-sm font-semibold">
-            {mainImageIndex + 1} / {room?.images?.length}
-          </div>
+          <button
+            onClick={() => setIsFavorite((prev) => !prev)}
+            aria-pressed={isFavorite}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+          >
+            <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
+            <span className="underline underline-offset-2">{isFavorite ? "Saved" : "Save"}</span>
+          </button>
         </div>
+      </div>
 
-        {/* Thumbnail Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          {room?.images?.map((img, index) => (
-            <div
-              key={index}
-              onClick={() => setMainImageIndex(index)}
-              className={`relative group overflow-hidden rounded-2xl cursor-pointer transition-all duration-500 ${
-                index === mainImageIndex
-                  ? "ring-4 ring-gray-900 shadow-2xl shadow-sm "
-                  : " shadow-lg hover:shadow-xl"
-              }`}
+      {/* Gallery */}
+      {images.length > 0 && (
+        <div className="relative">
+        <div
+          className={`grid gap-2 ${thumbs.length > 1 ? "md:grid-cols-4 md:grid-rows-2" : ""} md:h-[28rem] rounded-2xl overflow-hidden`}
+        >
+          {/* Main photo */}
+          <div
+            className={`group relative overflow-hidden bg-gray-100 h-72 sm:h-96 md:h-auto rounded-2xl md:rounded-none ${
+              thumbs.length > 1 ? "md:col-span-2 md:row-span-2" : ""
+            }`}
+          >
+            <button
+              onClick={() => setLightboxIndex(mainIndex)}
+              aria-label="Open photo full screen"
+              className="absolute inset-0 cursor-zoom-in"
             >
               <img
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                src={img}
-                alt={`Room view ${index + 1}`}
+                key={mainIndex}
+                src={optimizeImage(images[mainIndex], 1400)}
+                alt={`${room?.hotel?.name} photo ${mainIndex + 1}`}
+                fetchPriority="high"
+                className="w-full h-full object-cover animate-[fade-in_250ms_ease-out] group-hover:brightness-95 transition"
               />
-              <div className={`absolute inset-0 transition-all duration-500 ${
-                index === mainImageIndex
-                  ? "bg-transparent"
-                  : "bg-black/20 group-hover:bg-black/10"
-              }`}></div>
-              
-              {/* Selected Indicator */}
-              {index === mainImageIndex && (
-                <div className="absolute top-2 right-2 bg-gray-900 text-white p-1 rounded-full">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+            </button>
 
-      {/* Full Screen Image Modal */}
-      {isImageModalOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 animate-fade-in"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <button
-            onClick={() => setIsImageModalOpen(false)}
-            className="absolute top-4 right-4 text-white bg-white/10 backdrop-blur-md hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center transition-all"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          
-          <div className="relative max-w-6xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={room?.images?.[mainImageIndex]}
-              alt="Full size view"
-              className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
-            />
-            
-            {/* Navigation Arrows */}
-            {room?.images?.length > 1 && (
+            {images.length > 1 && (
               <>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMainImageIndex((prev) => (prev === 0 ? room.images.length - 1 : prev - 1));
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all"
+                  onClick={showPrevMain}
+                  aria-label="Previous photo"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-gray-900 shadow flex items-center justify-center md:opacity-0 group-hover:opacity-100 hover:scale-105 transition-all cursor-pointer"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMainImageIndex((prev) => (prev === room.images.length - 1 ? 0 : prev + 1));
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all"
+                  onClick={showNextMain}
+                  aria-label="Next photo"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 text-gray-900 shadow flex items-center justify-center md:opacity-0 group-hover:opacity-100 hover:scale-105 transition-all cursor-pointer"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <span className="absolute bottom-3 left-3 md:hidden bg-black/60 text-white text-xs font-medium px-2.5 py-1 rounded-md pointer-events-none">
+                  {mainIndex + 1} / {images.length}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Thumbnails: click to show in the main photo */}
+          {thumbs.length > 1 && (
+            <div className="grid grid-cols-4 md:contents gap-2">
+              {thumbs.map((img, index) => {
+                const active = index === mainIndex;
+                const isMore = index === thumbs.length - 1 && hiddenCount > 0;
+                return (
+                  <button
+                    key={img}
+                    onClick={() => (isMore ? setLightboxIndex(index) : setMainIndex(index))}
+                    aria-label={isMore ? `Show all ${images.length} photos` : `Show photo ${index + 1}`}
+                    aria-pressed={active}
+                    className={`group relative overflow-hidden bg-gray-100 aspect-[4/3] md:aspect-auto rounded-lg md:rounded-none cursor-pointer ${thumbSpan(index)}`}
+                  >
+                    <img
+                      src={optimizeImage(img, 700)}
+                      alt=""
+                      className="w-full h-full object-cover group-hover:brightness-90 transition"
+                    />
+                    {/* selected indicator */}
+                    <span
+                      className={`absolute inset-0 transition-all ${
+                        active ? "ring-[3px] ring-inset ring-gray-900" : "bg-white/0"
+                      }`}
+                    />
+                    {isMore && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-semibold">
+                        +{hiddenCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+
+        <button
+          onClick={() => setLightboxIndex(mainIndex)}
+          className="hidden md:flex absolute right-4 bottom-4 items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-900 text-sm font-semibold shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <Grid2x2 className="w-4 h-4" />
+          Show all photos
+        </button>
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {isOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo gallery"
+          className="fixed inset-0 z-[70] bg-white flex flex-col animate-[fade-in_150ms_ease-out]"
+        >
+          <div className="flex items-center justify-between px-4 md:px-8 py-4">
+            <button
+              onClick={close}
+              aria-label="Close gallery"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-900 hover:bg-gray-100 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+              Close
+            </button>
+            <span className="text-sm font-medium text-gray-900">
+              {lightboxIndex + 1} / {images.length}
+            </span>
+            <span className="w-20" />
+          </div>
+
+          <div className="relative flex-1 min-h-0 flex items-center justify-center px-4 md:px-24">
+            <img
+              key={lightboxIndex}
+              src={optimizeImage(images[lightboxIndex], 1800)}
+              alt={`${room?.hotel?.name} photo ${lightboxIndex + 1}`}
+              className="max-w-full max-h-full object-contain rounded-lg animate-[fade-in_200ms_ease-out]"
+            />
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prev}
+                  aria-label="Previous photo"
+                  className="absolute left-3 md:left-8 w-11 h-11 rounded-full border border-gray-300 bg-white text-gray-900 flex items-center justify-center hover:border-gray-900 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={next}
+                  aria-label="Next photo"
+                  className="absolute right-3 md:right-8 w-11 h-11 rounded-full border border-gray-300 bg-white text-gray-900 flex items-center justify-center hover:border-gray-900 transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </>
             )}
+          </div>
+
+          <div className="flex gap-2 justify-center overflow-x-auto px-4 py-4">
+            {images.map((img, i) => (
+              <button
+                key={img}
+                onClick={() => setLightboxIndex(i)}
+                aria-label={`Show photo ${i + 1}`}
+                className={`w-16 h-12 shrink-0 rounded-md overflow-hidden transition-all cursor-pointer ${
+                  i === lightboxIndex ? "ring-2 ring-gray-900 ring-offset-2" : "opacity-50 hover:opacity-100"
+                }`}
+              >
+                <img src={optimizeImage(img, 200)} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         </div>
       )}

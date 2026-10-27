@@ -1,45 +1,47 @@
-import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Clock } from "lucide-react";
 
 const OffersCard = ({ offer }) => {
   return (
-  <div className="group relative h-80 rounded-3xl overflow-hidden cursor-pointer">
+    <Link
+      to="/rooms"
+      onClick={() => window.scrollTo(0, 0)}
+      aria-label={`${offer.title}, ${offer.priceOff}% off`}
+      className="group relative block h-96 rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+    >
+      {/* Image */}
+      <img
+        src={offer.image}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
 
-  {/* Image */}
-  <img
-    src={offer.image}
-    alt={offer.title}
-    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-  />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-colors duration-500" />
 
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-all duration-500 group-hover:from-black/90" />
+      {/* Discount badge */}
+      <div className="absolute top-5 left-5 flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg rotate-[-6deg] group-hover:rotate-0 transition-transform duration-300">
+        <span className="text-xl font-extrabold leading-none">{offer.priceOff}%</span>
+        <span className="text-[10px] font-bold tracking-widest">OFF</span>
+      </div>
 
-  {/* Content */}
-  <div className="absolute bottom-0 p-6 text-white w-full transform transition-all duration-500 group-hover:translate-y-[-6px]">
+      {/* Expiry */}
+      <span className="absolute top-5 right-5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white text-xs font-medium">
+        <Clock className="w-3.5 h-3.5 text-amber-300" />
+        Ends {offer.expiryDate}
+      </span>
 
-    {/* Discount */}
-    <span className="inline-block mb-3 text-xs font-semibold bg-white/20 backdrop-blur px-3 py-1 rounded-full">
-      {offer.priceOff}% OFF
-    </span>
-
-    {/* Title */}
-    <h3 className="text-2xl font-bold leading-tight">
-      {offer.title}
-    </h3>
-
-    {/* Description */}
-    <p className="text-sm text-white/80 mt-2 line-clamp-2 opacity-0 group-hover:opacity-100 transition duration-500">
-      {offer.description}
-    </p>
-
-    {/* Extra info (hidden → show on hover) */}
-    <div className="mt-3 text-xs text-white/70 opacity-0 group-hover:opacity-100 transition duration-500">
-      Expires {offer.expiryDate}
-    </div>
-
-  </div>
-
-</div>
+      {/* Content */}
+      <div className="absolute bottom-0 inset-x-0 p-6 text-white">
+        <h3 className="text-2xl font-bold font-playfair leading-tight">{offer.title}</h3>
+        <p className="text-sm text-white/80 mt-2 line-clamp-2">{offer.description}</p>
+        <span className="inline-flex items-center gap-2 mt-4 text-sm font-semibold text-amber-300 group-hover:text-white transition-colors">
+          Claim this offer
+          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </span>
+      </div>
+    </Link>
   );
 };
 

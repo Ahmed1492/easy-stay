@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "../components/Hero";
 import FeaturedDestination from "../components/FeaturedDestination";
+import { BadgePercent, Globe2, MessageCircleHeart } from "lucide-react";
 import HeaderText from "../components/HeaderText";
 import ExclusiveOffers from "../components/ExclusiveOffers";
 import Testimonials from "../components/Testimonials";
@@ -15,18 +16,24 @@ const Home = () => {
 
   const featuredHeader = {
     title: "Featured Destinations",
+    eyebrow: "Top Picks",
+    icon: Globe2,
     desc: "Explore our handpicked selection of stunning destinations and luxury accommodations around the world",
     style: "items-start justify-start text-left",
   };
 
   const exclusiveOffers = {
     title: "Exclusive Offers",
+    eyebrow: "Limited-Time Deals",
+    icon: BadgePercent,
     desc: "Unlock special deals and limited-time offers on premium hotels and resorts worldwide",
     style: "items-start justify-start text-left",
   };
 
   const testimonials = {
     title: "What Our Guests Say",
+    eyebrow: "Guest Stories",
+    icon: MessageCircleHeart,
     desc: "Real experiences from travelers who discovered their perfect getaway with us",
     style: "items-start justify-start text-left",
   };
@@ -56,6 +63,8 @@ const Home = () => {
             title={featuredHeader.title}
             description={featuredHeader.desc}
             style={featuredHeader.style}
+            eyebrow={featuredHeader.eyebrow}
+            icon={featuredHeader.icon}
           />
           {isLoading ? (
             <GridSkeleton count={4} />
@@ -70,6 +79,8 @@ const Home = () => {
             title={exclusiveOffers.title}
             description={exclusiveOffers.desc}
             style={exclusiveOffers.style}
+            eyebrow={exclusiveOffers.eyebrow}
+            icon={exclusiveOffers.icon}
           />
           <ExclusiveOffers />
         </section>
@@ -80,6 +91,8 @@ const Home = () => {
             title={testimonials.title}
             description={testimonials.desc}
             style={testimonials.style}
+            eyebrow={testimonials.eyebrow}
+            icon={testimonials.icon}
           />
           <Testimonials />
         </section>

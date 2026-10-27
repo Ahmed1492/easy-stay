@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchCities, setSearchCities] = useState(["aa"]);
   const [rooms, setRooms] = useState([]);
+  const [roomsLoading, setRoomsLoading] = useState(true);
   const [recommended, setRecommended] = useState([]);
 
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ export const AppProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setRoomsLoading(false);
     }
   };
 
@@ -87,6 +90,7 @@ export const AppProvider = ({ children }) => {
     searchCities,
     setSearchCities,
     rooms,
+    roomsLoading,
     fetchRooms,
     recommended,
     

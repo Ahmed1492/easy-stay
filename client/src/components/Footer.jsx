@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ArrowUp, BadgeCheck, BadgePercent, Headset, ShieldCheck } from "lucide-react";
 import { assets } from "../assets/assets";
 
 const Footer = () => {
@@ -35,61 +36,31 @@ const Footer = () => {
     { icon: assets.linkendinIcon, name: "LinkedIn", url: "#" },
   ];
 
-const features = [
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3 0 1.657 3 5 3 5s3-3.343 3-5c0-1.657-1.343-3-3-3z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05 5.636 5.636m12.728 0-1.414 1.414M7.05 16.95l-1.414 1.414" />
-      </svg>
-    ),
-    text: "Best Price Guarantee",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c1.657 0 3-1.343 3-3V6a3 3 0 10-6 0v2c0 1.657 1.343 3 3 3z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 11h14v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7z" />
-      </svg>
-    ),
-    text: "Secure Booking",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 20l1.2-3.2A7.72 7.72 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-    text: "24/7 Support",
-  },
-  {
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-      </svg>
-    ),
-    text: "Verified Reviews",
-  },
-];
+  const features = [
+    { icon: BadgePercent, title: "Best Price Guarantee", text: "Found it cheaper? We match it." },
+    { icon: ShieldCheck, title: "Secure Booking", text: "Encrypted, protected payments." },
+    { icon: Headset, title: "24/7 Support", text: "Real people, any time of day." },
+    { icon: BadgeCheck, title: "Verified Reviews", text: "Only from guests who stayed." },
+  ];
 
   return (
     <footer className="bg-gradient-to-br mt-[4rem] from-gray-900 via-gray-800 to-gray-900 text-gray-300">
       {/* Features Bar */}
       <div className="border-b border-gray-700">
         <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {features.map(({ icon: Icon, title, text }) => (
               <div
-                key={index}
-                className="flex items-center gap-3 justify-center md:justify-start group"
+                key={title}
+                className="group flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-amber-400/40 transition-all duration-300"
               >
-                <div className="text-blue-400 group-hover:text-blue-300 group-hover:scale-110 transition-all">
-                  {feature.icon}
-                </div>
-                <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
-                  {feature.text}
+                <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/20 shrink-0 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
+                  <Icon className="w-6 h-6" />
                 </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white">{title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{text}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -287,9 +258,7 @@ const features = [
         className="fixed bottom-8 right-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center z-50"
         aria-label="Back to top"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
+        <ArrowUp className="w-5 h-5" />
       </button>
     </footer>
   );

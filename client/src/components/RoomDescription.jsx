@@ -1,149 +1,204 @@
-import React from "react";
-import { assets, facilityIcons, roomCommonData } from "../assets/assets";
+import {
+  BadgeCheck,
+  CalendarCheck,
+  Check,
+  Clock,
+  DoorOpen,
+  KeyRound,
+  Mail,
+  MapPin,
+  Phone,
+  SprayCan,
+  Star,
+} from "lucide-react";
+import { assets, facilityIcons } from "../assets/assets";
 import RoomCheckAvailabiltiy from "./RoomCheckAvailabiltiy";
-import StarRating from "./StarRating";
+
+const highlights = [
+  { icon: KeyRound, title: "Easy check-in", sub: "Smooth arrival with help from the front desk any time." },
+  { icon: BadgeCheck, title: "Verified hotel", sub: "Listed and reviewed by the QuickStay team." },
+  { icon: CalendarCheck, title: "Flexible payment", sub: "Pay online now, or pay when you arrive at the hotel." },
+];
+
+const goodToKnow = [
+  {
+    title: "Hotel rules",
+    items: [
+      { icon: Clock, text: "Check-in after 2:00 PM" },
+      { icon: DoorOpen, text: "Checkout before 12:00 PM" },
+    ],
+  },
+  {
+    title: "Safety & cleaning",
+    items: [
+      { icon: SprayCan, text: "Cleaned between every stay" },
+      { icon: BadgeCheck, text: "Front desk on site" },
+    ],
+  },
+  {
+    title: "Location",
+    items: [{ icon: MapPin, text: "Easy access to the city" }],
+  },
+];
+
+const Divider = () => <hr className="border-gray-200" />;
 
 const RoomDescription = ({ room, isAvailable, setIsAvailabe, bookingData, setBookingData, id }) => {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start mt-12">
+  const hotel = room?.hotel;
+  const amenityCount = room?.amenities?.length || 0;
 
-      {/* ── LEFT: main content (2/3) ── */}
-      <div className="lg:col-span-2 space-y-8">
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 xl:gap-24 items-start mt-10">
+      {/* ── LEFT: main content ── */}
+      <div className="min-w-0">
+        {/* Summary */}
+        <div className="pb-8">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+            {room?.roomType} in {hotel?.city || "the city"}
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Private room · {amenityCount} amenit{amenityCount === 1 ? "y" : "ies"} ·{" "}
+            {room?.isAvailable === false ? "Currently unavailable" : "Available to book"}
+          </p>
+        </div>
+
+        <Divider />
 
         {/* Host row */}
-        <div className="flex items-center justify-between pb-6 border-b border-gray-200">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-0.5">
-              Hosted by {room?.hotel?.name}
-            </h2>
-            <p className="text-sm text-gray-500">
-              {room?.hotel?.city} · {room?.hotel?.address}
-            </p>
+        <div className="flex items-center gap-4 py-6">
+          <img src={assets?.hotelLogo} alt="" className="w-12 h-12 rounded-full object-cover" />
+          <div className="min-w-0">
+            <p className="font-semibold text-gray-900 truncate">Hosted by {hotel?.name}</p>
+            <p className="text-sm text-gray-500">Verified hotel on QuickStay</p>
           </div>
-          <img
-            src={assets?.hotelLogo}
-            alt="host"
-            className="w-14 h-14 rounded-full object-cover border-2 border-gray-100 shadow-sm flex-shrink-0"
-          />
         </div>
 
-        {/* Quick highlights */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            {
-              icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              ),
-              title: "Self check-in",
-              sub: "Check yourself in with the keypad",
-            },
-            {
-              icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-              ),
-              title: "Top-rated host",
-              sub: "4.9 stars across 200+ stays",
-            },
-            {
-              icon: (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              ),
-              title: "Free cancellation",
-              sub: "Cancel up to 48h before check-in",
-            },
-          ].map((h) => (
-            <div key={h.title} className="flex items-start gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <div className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 text-gray-700">
-                {h.icon}
-              </div>
+        <Divider />
+
+        {/* Highlights */}
+        <ul className="py-8 space-y-6">
+          {highlights.map(({ icon: Icon, title, sub }) => (
+            <li key={title} className="flex items-start gap-5">
+              <Icon className="w-6 h-6 text-gray-900 shrink-0 mt-0.5" strokeWidth={1.5} />
               <div>
-                <p className="text-sm font-semibold text-gray-900">{h.title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{h.sub}</p>
+                <p className="font-semibold text-gray-900">{title}</p>
+                <p className="text-sm text-gray-500">{sub}</p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
+
+        <Divider />
 
         {/* About */}
-        <div className="pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-3">About this space</h3>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Guests will be allocated on the ground floor according to availability. You get a comfortable two-bedroom apartment that has a true city feeling. The price quoted is for two guests — at the guest slot, please mark the number of guests to get the exact price for groups.
+        <section className="py-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">About this room</h2>
+          <p className="text-gray-700 leading-relaxed">
+            Enjoy a comfortable {room?.roomType?.toLowerCase()} at {hotel?.name}
+            {hotel?.city ? `, in ${hotel.city}` : ""}. Settle in, relax, and make the most of the
+            amenities included with your stay. Choose your dates to see the total price and
+            reserve in a few clicks.
           </p>
-        </div>
+        </section>
+
+        <Divider />
 
         {/* Amenities */}
-        <div className="pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">What this place offers</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {room?.amenities?.map((item) => (
-              <div key={item} className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-gray-100 shadow-sm hover:border-gray-300 transition-colors">
-                <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <img className="w-4 h-4" src={facilityIcons?.[item]} alt={item} />
-                </div>
-                <span className="text-sm font-medium text-gray-700">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {amenityCount > 0 && (
+          <>
+            <section className="py-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">What this place offers</h2>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                {room.amenities.map((item) => (
+                  <li key={item} className="flex items-center gap-4 text-gray-700">
+                    {facilityIcons?.[item] ? (
+                      <img className="w-6 h-6 opacity-80" src={facilityIcons[item]} alt="" />
+                    ) : (
+                      <Check className="w-6 h-6 text-gray-700" strokeWidth={1.5} />
+                    )}
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <Divider />
+          </>
+        )}
 
-        {/* Room features from roomCommonData */}
-        <div className="pb-6 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Room features</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {roomCommonData.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md transition-all duration-200">
-                <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <img src={item.icon} className="w-5 h-5 brightness-0 invert" alt="" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 mb-0.5">{item.title}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{item.description}</p>
-                </div>
+        {/* Good to know */}
+        <section className="py-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Things to know</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            {goodToKnow.map(({ title, items }) => (
+              <div key={title}>
+                <p className="font-semibold text-gray-900 mb-3">{title}</p>
+                <ul className="space-y-3">
+                  {items.map(({ icon: Icon, text }) => (
+                    <li key={text} className="flex items-center gap-3 text-sm text-gray-700">
+                      <Icon className="w-4 h-4 text-gray-500" strokeWidth={1.75} />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
-        </div>
+        </section>
+
+        <Divider />
 
         {/* Host card */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <img src={assets?.hotelLogo} alt="host" className="w-16 h-16 rounded-full object-cover border-2 border-gray-100" />
+        <section className="py-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Meet your host</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-[260px_1fr] gap-8 items-center">
+            <div className="rounded-3xl p-6 shadow-[0_6px_24px_rgba(0,0,0,0.12)] text-center">
+              <img src={assets?.hotelLogo} alt="" className="w-20 h-20 rounded-full object-cover mx-auto mb-3" />
+              <p className="text-xl font-semibold text-gray-900 truncate">{hotel?.name}</p>
+              <p className="text-sm text-gray-500 mb-4">Hotel</p>
+              <div className="flex justify-center gap-6 pt-4 border-t border-gray-100 text-left">
+                <div>
+                  <p className="font-semibold text-gray-900 flex items-center gap-1">
+                    4.5 <Star className="w-3.5 h-3.5 fill-gray-900" />
+                  </p>
+                  <p className="text-[11px] text-gray-500">Rating</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">200+</p>
+                  <p className="text-[11px] text-gray-500">Reviews</p>
+                </div>
+              </div>
+            </div>
             <div>
-              <p className="font-bold text-gray-900">{room?.hotel?.name}</p>
-              <div className="flex items-center gap-1.5 mt-1">
-                <StarRating />
-                <span className="text-xs text-gray-500">4.5 · 200+ reviews</span>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                A hospitality team dedicated to providing exceptional stays. They're on hand to make
+                sure you're comfortable and well looked after throughout your visit.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {hotel?.contact && (
+                  <a
+                    href={`tel:${hotel.contact}`}
+                    className="flex items-center gap-2 px-5 py-3 rounded-lg bg-gray-900 hover:bg-black text-white text-sm font-semibold transition-colors"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Call the hotel
+                  </a>
+                )}
+                <a
+                  href={`mailto:?subject=${encodeURIComponent(`Question about ${hotel?.name || "your hotel"}`)}`}
+                  className="flex items-center gap-2 px-5 py-3 rounded-lg border border-gray-900 text-gray-900 text-sm font-semibold hover:bg-gray-50 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  Message host
+                </a>
               </div>
             </div>
           </div>
-          <p className="text-sm text-gray-500 leading-relaxed mb-4">
-            We are a premium hospitality group dedicated to providing exceptional stays. Our team is available 24/7 to ensure your comfort and satisfaction throughout your visit.
-          </p>
-          <div className="flex gap-2">
-            <button className="flex-1 bg-gray-900 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Contact Host
-            </button>
-            <button className="flex-1 border border-gray-200 hover:border-gray-400 text-gray-700 py-2.5 rounded-xl text-sm font-semibold transition-colors">
-              More Info
-            </button>
-          </div>
-        </div>
-
+        </section>
       </div>
 
-      {/* ── RIGHT: sticky booking card (1/3) ── */}
-      <div className="lg:col-span-1">
-        <div className="sticky top-24">
+      {/* ── RIGHT: sticky booking card ── */}
+      <aside id="booking" className="scroll-mt-28">
+        <div className="lg:sticky lg:top-28">
           <RoomCheckAvailabiltiy
             isAvailable={isAvailable}
             bookingData={bookingData}
@@ -153,8 +208,7 @@ const RoomDescription = ({ room, isAvailable, setIsAvailabe, bookingData, setBoo
             pricePerNight={room?.pricePerNight}
           />
         </div>
-      </div>
-
+      </aside>
     </div>
   );
 };

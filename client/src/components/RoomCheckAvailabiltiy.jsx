@@ -1,11 +1,61 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import {
+  Building2,
+  CircleCheck,
+  CreditCard,
+  Loader2,
+  Minus,
+  Plus,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 
+const formatDate = (value) =>
+  new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+// Native date inputs show "mm/dd/yyyy"; display a friendly date instead and
+// keep the real input invisible on top so the picker still opens on click.
+const DateField = ({ label, value, min, disabled, onChange }) => (
+  <div className={`relative px-4 py-3 ${disabled ? "bg-gray-50" : "hover:bg-gray-50"} transition-colors`}>
+    <span className="block text-[10px] font-bold text-gray-900 uppercase tracking-wide">{label}</span>
+    <span className={`block text-sm truncate ${value ? "text-gray-900" : "text-gray-400"}`}>
+      {value ? formatDate(value) : disabled ? "Add check-in first" : "Add date"}
+    </span>
+    <input
+      type="date"
+      value={value}
+      min={min}
+      disabled={disabled}
+      aria-label={label}
+      onChange={(e) => onChange(e.target.value)}
+      onClick={(e) => {
+        try {
+          e.currentTarget.showPicker?.();
+        } catch {
+          // picker already open or not supported; native behaviour still works
+        }
+      }}
+      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+    />
+  </div>
+);
+
+const PAYMENT_OPTIONS = [
+  { id: "stripe", label: "Pay now", sub: "Secure card payment via Stripe", icon: CreditCard },
+  { id: "hotel", label: "Pay at the hotel", sub: "Reserve now, pay when you arrive", icon: Building2 },
+];
+
 const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIsAvailabe, id, pricePerNight }) => {
-  const { backEndUrl, getToken, navigate, user } = useAppContext();
+  const { backEndUrl, getToken, navigate, user, currency } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const [paymentChoice, setPaymentChoice] = useState("stripe");
 
   const nights =
     bookingData.checkInDate && bookingData.checkOutDate
@@ -85,7 +135,7 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
     try {
       setLoading(true);
 
-      // Step 1: create the booking (status: pending, isPaid: true signals Stripe path)
+      // Step 1: create the booking (pending and unpaid until Stripe confirms payment)
       const bookingRes = await axios.post(
         `${backEndUrl}/api/booking/create`,
         {
@@ -94,7 +144,7 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
           room: id,
           guests: bookingData.guests,
           paymentMethod: "Stripe",
-          isPaid: true, // tells controller to keep status "pending" until webhook confirms
+          isPaid: false,
         },
         { headers: { "ngrok-skip-browser-warning": "true", Authorization: `Bearer ${await getToken()}` } }
       );
@@ -126,187 +176,196 @@ const RoomCheckAvailabiltiy = ({ bookingData, setBookingData, isAvailable, setIs
     }
   };
 
+  const today = new Date().toISOString().split("T")[0];
+  const canCheck = Boolean(bookingData.checkInDate && bookingData.checkOutDate);
+
+  const handleMainAction = () => {
+    if (!user) return toast.error("Please log in first");
+    if (!isAvailable) return handleCheckAvailability();
+    return paymentChoice === "stripe" ? handlePayWithStripe() : handlePayAtHotel();
+  };
+
+  const mainLabel = loading
+    ? isAvailable
+      ? paymentChoice === "stripe"
+        ? "Redirecting to Stripe…"
+        : "Confirming booking…"
+      : "Checking…"
+    : !canCheck
+    ? "Add dates to continue"
+    : !isAvailable
+    ? "Check availability"
+    : paymentChoice === "stripe"
+    ? "Reserve & pay"
+    : "Reserve";
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
-
-      {/* Price header */}
-      <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-        <div className="flex items-end gap-1.5">
-          <span className="text-3xl font-bold text-gray-900">${pricePerNight}</span>
-          <span className="text-gray-400 text-sm mb-1">/night</span>
-        </div>
-        <div className="flex items-center gap-1 mt-1">
-          <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-          <span className="text-xs font-semibold text-gray-700">4.5</span>
-          <span className="text-xs text-gray-400">· 200+ reviews</span>
-        </div>
-      </div>
-
-      {/* Date + guests inputs */}
-      <div className="px-6 py-4 space-y-3">
-        {/* Dates row */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-              Check-in
-            </label>
-            <input
-              type="date"
-              value={bookingData.checkInDate}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => {
-                setBookingData((p) => ({ ...p, checkInDate: e.target.value }));
-                setIsAvailabe(false);
-              }}
-              className="w-full text-sm font-medium text-gray-900 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-gray-900 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-              Check-out
-            </label>
-            <input
-              type="date"
-              value={bookingData.checkOutDate}
-              min={bookingData.checkInDate || new Date().toISOString().split("T")[0]}
-              disabled={!bookingData.checkInDate}
-              onChange={(e) => {
-                setBookingData((p) => ({ ...p, checkOutDate: e.target.value }));
-                setIsAvailabe(false);
-              }}
-              className="w-full text-sm font-medium text-gray-900 border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-gray-900 transition-colors disabled:bg-gray-50 disabled:text-gray-300"
-            />
-          </div>
-        </div>
-
-        {/* Guests */}
-        <div>
-          <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-            Guests
-          </label>
-          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setBookingData((p) => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
-              className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-              </svg>
-            </button>
-            <span className="flex-1 text-center text-sm font-semibold text-gray-900">
-              {bookingData.guests} {bookingData.guests === 1 ? "Guest" : "Guests"}
-            </span>
-            <button
-              type="button"
-              onClick={() => setBookingData((p) => ({ ...p, guests: Math.min(6, p.guests + 1) }))}
-              className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors flex-shrink-0"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Availability banner */}
-      {isAvailable && (
-        <div className="mx-6 mb-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2">
-          <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <p className="text-xs font-semibold text-green-800">Room is available — choose how to pay!</p>
-        </div>
-      )}
-
-      {/* CTA buttons */}
-      <div className="px-6 pb-5 space-y-2">
-        {!isAvailable ? (
-          // Step 1: Check availability
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => {
-              if (!user) return toast.error("Please log in first");
-              handleCheckAvailability();
-            }}
-            className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-700 text-white disabled:opacity-60"
-          >
-            {loading ? (
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            )}
-            Check Availability
-          </button>
-        ) : (
-          // Step 2: Choose payment method
-          <>
-            {/* Pay with Stripe */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handlePayWithStripe}
-              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 disabled:opacity-60"
-            >
-              {loading ? (
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-              )}
-              Pay Now with Stripe
-            </button>
-
-            {/* Pay At Hotel */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handlePayAtHotel}
-              className="w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white disabled:opacity-60"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-              Pay At Hotel
-            </button>
-          </>
-        )}
-        <p className="text-center text-xs text-gray-400">
-          {isAvailable ? "Stripe payment is secure & encrypted" : "You won't be charged yet"}
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_6px_20px_rgba(0,0,0,0.12)]">
+      {/* Price */}
+      <div className="flex items-end justify-between gap-3 mb-6">
+        <p className="text-gray-900">
+          <span className="text-2xl font-semibold">
+            {currency}
+            {Number(pricePerNight).toLocaleString()}
+          </span>{" "}
+          <span className="text-gray-600">night</span>
+        </p>
+        <p className="flex items-center gap-1 text-sm text-gray-900">
+          <Star className="w-3.5 h-3.5 fill-gray-900" />
+          <span className="font-semibold">4.5</span>
+          <span className="text-gray-400">·</span>
+          <span className="text-gray-500 underline underline-offset-2">200+ reviews</span>
         </p>
       </div>
 
-      {/* Price breakdown */}
-      {total && (
-        <div className="px-6 pb-6 border-t border-gray-100 pt-4 space-y-2">
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>${pricePerNight} × {nights} night{nights > 1 ? "s" : ""}</span>
-            <span>${pricePerNight * nights}</span>
+      {/* Dates + guests in one bordered box */}
+      <div className="rounded-xl border border-gray-400 overflow-hidden">
+        <div className="grid grid-cols-2 divide-x divide-gray-400">
+          <DateField
+            label="Check-in"
+            value={bookingData.checkInDate}
+            min={today}
+            onChange={(value) => {
+              setBookingData((p) => ({
+                ...p,
+                checkInDate: value,
+                // keep check-out after check-in
+                checkOutDate: p.checkOutDate && p.checkOutDate <= value ? "" : p.checkOutDate,
+              }));
+              setIsAvailabe(false);
+            }}
+          />
+          <DateField
+            label="Checkout"
+            value={bookingData.checkOutDate}
+            min={bookingData.checkInDate || today}
+            disabled={!bookingData.checkInDate}
+            onChange={(value) => {
+              setBookingData((p) => ({ ...p, checkOutDate: value }));
+              setIsAvailabe(false);
+            }}
+          />
+        </div>
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-400">
+          <div>
+            <span className="block text-[10px] font-bold text-gray-900 uppercase tracking-wide">Guests</span>
+            <span className="text-sm text-gray-900">
+              {bookingData.guests} guest{bookingData.guests > 1 ? "s" : ""}
+            </span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>Service fee</span>
-            <span>$0</span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              aria-label="Fewer guests"
+              disabled={bookingData.guests <= 1}
+              onClick={() => setBookingData((p) => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-900 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="w-4 text-center text-sm font-medium">{bookingData.guests}</span>
+            <button
+              type="button"
+              aria-label="More guests"
+              disabled={bookingData.guests >= 6}
+              onClick={() => setBookingData((p) => ({ ...p, guests: Math.min(6, p.guests + 1) }))}
+              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:border-gray-900 hover:text-gray-900 disabled:opacity-30 disabled:hover:border-gray-300 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-100">
-            <span>Total</span>
-            <span>${total}</span>
+        </div>
+      </div>
+
+      {/* Payment choice (after availability is confirmed) */}
+      {isAvailable && (
+        <div className="mt-5">
+          <p className="flex items-center gap-2 text-sm font-medium text-emerald-700 mb-3">
+            <CircleCheck className="w-4 h-4" />
+            Your dates are available
+          </p>
+          <div className="space-y-2" role="radiogroup" aria-label="Payment method">
+            {PAYMENT_OPTIONS.map(({ id: optionId, label, sub, icon: Icon }) => {
+              const selected = paymentChoice === optionId;
+              return (
+                <button
+                  key={optionId}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  disabled={loading}
+                  onClick={() => setPaymentChoice(optionId)}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-colors cursor-pointer ${
+                    selected ? "border-gray-900 ring-1 ring-gray-900 bg-gray-50" : "border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  <Icon className="w-5 h-5 text-gray-700 shrink-0" strokeWidth={1.75} />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-semibold text-gray-900">{label}</span>
+                    <span className="block text-xs text-gray-500">{sub}</span>
+                  </span>
+                  <span
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      selected ? "border-gray-900" : "border-gray-300"
+                    }`}
+                  >
+                    {selected && <span className="w-2.5 h-2.5 rounded-full bg-gray-900" />}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
+      {/* Main action */}
+      <button
+        type="button"
+        disabled={loading || !canCheck}
+        onClick={handleMainAction}
+        className="mt-5 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-white font-semibold bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 bg-[length:200%_100%] bg-left hover:bg-right transition-all duration-500 disabled:from-gray-300 disabled:via-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed cursor-pointer"
+      >
+        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        {mainLabel}
+      </button>
+
+      <p className="flex items-center justify-center gap-1.5 mt-3 text-sm text-gray-500">
+        {isAvailable && paymentChoice === "stripe" ? (
+          <>
+            <ShieldCheck className="w-4 h-4" />
+            Payments are processed securely by Stripe
+          </>
+        ) : (
+          "You won't be charged yet"
+        )}
+      </p>
+
+      {/* Price breakdown */}
+      {total && (
+        <div className="mt-6 space-y-3 text-gray-700">
+          <div className="flex justify-between">
+            <span className="underline underline-offset-2">
+              {currency}
+              {Number(pricePerNight).toLocaleString()} × {nights} night{nights > 1 ? "s" : ""}
+            </span>
+            <span>
+              {currency}
+              {(pricePerNight * nights).toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="underline underline-offset-2">Service fee</span>
+            <span>{currency}0</span>
+          </div>
+          <div className="flex justify-between pt-4 border-t border-gray-200 font-semibold text-gray-900">
+            <span>Total</span>
+            <span>
+              {currency}
+              {total.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
